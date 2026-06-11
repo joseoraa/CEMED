@@ -1,0 +1,214 @@
+{% extends 'Inicio/base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="text-center mb-4">
+
+        <h1 class="page-title"><i class="fa-solid fa-flask-vial"></i>  REGISTRAR EXAMEN</h1>
+
+        <div class="divider"></div>
+
+    </div>
+
+
+
+    <form method="POST" class="card shadow">
+        {% csrf_token %}
+
+        <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        Paciente o Familiar
+                    </label>
+
+                    {{ form.persona }}
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Doctor</label>
+                    {{ form.doctor }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold">Observación</label>
+                    {{ form.observacion }}
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Exámenes -->
+            <h4 class="fw-bold text-primary">Exámenes</h4>
+            <button type="button" class="btn btn-pro btn-square btn-square-md btn-guardar" id="add-examen"><i class="fa-solid fa-plus"></i></button>
+
+            {{ examen_formset.management_form }}
+            <div id="examen-container">
+                {% for f in examen_formset %}
+                    <div class="formset-item card p-3 mb-2">
+                        <div class="row">
+                            <div class="col-md-10">
+                                {{ f.examen }}
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button type="button" class="btn btn-pro btn-square btn-square-md btn-delete">X</button>
+                            </div>
+                        </div>
+                        {{ f.id }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <hr>
+
+            <!-- Insumos -->
+            <h4 class="fw-bold text-primary">Insumos Utilizados</h4>
+            <button type="button" class="btn btn-pro btn-square btn-square-md btn-guardar" id="add-insumo"><i class="fa-solid fa-plus"></i> </button>
+
+            {{ insumo_formset.management_form }}
+            <div id="insumo-container">
+                {% for f in insumo_formset %}
+                    <div class="formset-item card p-3 mb-2">
+                        <div class="row">
+                            <div class="col-md-6">{{ f.insumo }}</div>
+                            <div class="col-md-4">{{ f.cantidad }}</div>
+                            <div class="col-md-2 text-end">
+                                <button type="button" class="btn btn-pro btn-square btn-square-md btn-delete">X</button>
+                            </div>
+                        </div>
+                        {{ f.id }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card-footer text-center">
+            <button type="submit" class="btn btn-pro btn-square btn-guardar btn-square-lg"> <i class="fas fa-save"></i></button>
+        </div>
+    </form>
+</div>
+
+<!-- Templates ocultos para clonar -->
+<div id="empty-examen" style="display:none;">
+    <div class="formset-item card p-3 mb-2">
+        <div class="row">
+            <div class="col-md-10">{{ examen_formset.empty_form.examen }}</div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-pro btn-square btn-square-md btn-delete">X</button>
+            </div>
+        </div>
+        {{ examen_formset.empty_form.id }}
+    </div>
+</div>
+
+<div id="empty-insumo" style="display:none;">
+    <div class="formset-item card p-3 mb-2">
+        <div class="row">
+            <div class="col-md-6">{{ insumo_formset.empty_form.insumo }}</div>
+            <div class="col-md-4">{{ insumo_formset.empty_form.cantidad }}</div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-pro btn-square btn-square-md btn-delete">X</button>
+            </div>
+        </div>
+        {{ insumo_formset.empty_form.id }}
+    </div>
+</div>
+<br>
+<script>
+
+$(document).ready(function () {
+
+    // 1. Función para aplicar Select2 de forma segura
+    function aplicarSelect2(selector, placeholderText) {
+        $(selector).each(function() {
+            if (!$(this).hasClass("select2-hidden-accessible")) {
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    placeholder: placeholderText,
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $(document.body) // Evita bloqueos de capas/modales
+                });
+            }
+        });
+    }
+
+    // 2. Inicializar los campos fijos y los que ya existan al cargar la página
+
+    aplicarSelect2('#id_paciente', 'Buscar paciente...');
+    aplicarSelect2('#id_doctor', 'Buscar Por nombre y Apellido del Doctor...');
+    aplicarSelect2('#insumo-container select', 'Buscar Insumo Médico...');
+    aplicarSelect2('#examen-container select', 'Buscar Examen Médico...');
+
+    // 3. Función optimizada para agregar filas dinámicas
+    function addForm(containerId, emptyId, totalInputName) {
+        const container = document.getElementById(containerId);
+        const totalForms = document.querySelector(`[name="${totalInputName}"]`);
+        
+        if (!totalForms) {
+            console.error(`Error: No se encontró el Management Form con el nombre: ${totalInputName}`);
+            return;
+        }
+
+        let index = parseInt(totalForms.value);
+
+        // Clonamos el HTML limpio del template
+        let templateHtml = document.getElementById(emptyId).innerHTML;
+        templateHtml = templateHtml.replace(/__prefix__/g, index);
+
+        // Insertar en el HTML
+        container.insertAdjacentHTML('beforeend', templateHtml);
+
+        // Incrementar el contador de Django
+        totalForms.value = index + 1;
+
+        // 🔥 EL TRUCO INTELIGENTE: Buscamos el ÚLTIMO 'select' que entró al contenedor 
+        // y le aplicamos Select2 sin importar cómo se llame su atributo 'name'
+        const nuevoSelect = $(container).find('.formset-item').last().find('select');
+        
+        if (nuevoSelect.length > 0) {
+            aplicarSelect2(nuevoSelect, 'Buscar opción...');
+        }
+    }
+
+    // Eventos para los botones de añadir (+)
+    $('#add-examen').on('click', function() {
+        // Busca el ID del input oculto de Django. Si no funciona, revisa tu consola (F12)
+        // A veces Django lo nombra 'examenes-TOTAL_FORMS' o 'examen_set-TOTAL_FORMS'
+        let inputName = $('input[name$="-TOTAL_FORMS"]').first().attr('name'); 
+        // Intentamos detectar el correcto para exámenes de forma dinámica si falla el tuyo:
+        let examenInput = document.querySelector('[name="examenes-TOTAL_FORMS"]') ? 'examenes-TOTAL_FORMS' : 'examen_set-TOTAL_FORMS';
+        
+        addForm('examen-container', 'empty-examen', examenInput);
+    });
+
+    $('#add-insumo').on('click', function() {
+        let insumoInput = document.querySelector('[name="insumos-TOTAL_FORMS"]') ? 'insumos-TOTAL_FORMS' : 'insumo_set-TOTAL_FORMS';
+        
+        addForm('insumo-container', 'empty-insumo', insumoInput);
+    });
+
+
+    // 4. Lógica para eliminar filas
+    $(document).on('click', '.btn-delete', function(e) {
+        e.preventDefault();
+        $(this).closest('.formset-item').remove();
+    });
+
+});
+
+$(document).ready(function() {
+
+        $('#id_persona').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Buscar por Nombre y Apellidos del Paciente...',
+            allowClear: true,
+            width: '100%'
+        });
+
+    });
+
+
+</script>
+{% endblock %}

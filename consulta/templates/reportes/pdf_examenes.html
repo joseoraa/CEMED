@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@page { size: letter; margin: 35px 25px 80px 25px;
+    @frame footer { -pdf-frame-content: footerContent; left: 25px; width: 565px; bottom: 10px; height: 35px; }
+}
+body { font-family: Arial; font-size: 10px; color: #1e293b; }
+.header { background: #ffc107; color: #000; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; }
+.subtitle { text-align: center; margin: 12px 0; font-size: 12px; font-weight: bold; }
+.kpi { width: 100%; margin-bottom: 12px; border-collapse: collapse; }
+.kpi td { border: 1px solid #000; padding: 6px; text-align: center; width: 25%; }
+table.data { width: 100%; border-collapse: collapse; }
+table.data th { background: #ffc107; padding: 5px; font-size: 8px; border: 1px solid #000; }
+table.data td { padding: 4px; font-size: 8px; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<div class="header">CEMED JR ORAA — EXÁMENES REALIZADOS</div>
+<div class="subtitle">{{ titulo }}</div>
+
+<table class="kpi">
+    <tr>
+        <td><strong>Registros</strong><br>{{ resumen.cantidad }}</td>
+        <td><strong>Exámenes</strong><br>$ {{ resumen.total_examenes|floatformat:2 }}</td>
+        <td><strong>Insumos</strong><br>$ {{ resumen.total_insumos|floatformat:2 }}</td>
+        <td><strong>Total</strong><br>$ {{ resumen.total_general|floatformat:2 }}</td>
+    </tr>
+</table>
+
+<table class="data">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Paciente</th>
+            <th>Médico</th>
+            <th>Exámenes</th>
+            <th>$ Exámenes</th>
+            <th>$ Insumos</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in filas %}
+        <tr>
+            <td>{{ row.examen.fecha|date:"d/m/Y" }}</td>
+            <td>
+                {% if row.examen.familiar %}
+                    {{ row.examen.familiar.nombre }} {{ row.examen.familiar.apellido }}
+                {% else %}
+                    {{ row.examen.paciente.nombre }} {{ row.examen.paciente.apellido }}
+                {% endif %}
+            </td>
+            <td>
+                {% if row.examen.doctor %}
+                    Dr. {{ row.examen.doctor.usuario.apellido }}
+                {% else %}—{% endif %}
+            </td>
+            <td style="text-align:left;">
+                {% for item in row.examen.examenes_realizados.all %}
+                    {{ item.examen.nom_exa }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    {% if row.examen.examen %}{{ row.examen.examen.nom_exa }}{% else %}—{% endif %}
+                {% endfor %}
+            </td>
+            <td>$ {{ row.sub_examenes|floatformat:2 }}</td>
+            <td>$ {{ row.sub_insumos|floatformat:2 }}</td>
+            <td><strong>$ {{ row.total|floatformat:2 }}</strong></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7">Sin exámenes en el periodo.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div id="footerContent">
+    <table width="100%" style="font-size:8px;border-top:1px solid #000;">
+        <tr>
+            <td>Generado: {{ fecha_generacion|date:"d/m/Y H:i" }}</td>
+            <td align="center">CEMED JR ORAA</td>
+            <td align="right">Pág. <pdf:pagenumber /> / <pdf:pagecount /></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

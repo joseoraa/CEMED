@@ -1,0 +1,147 @@
+{% extends "Inicio/base.html" %} {% load static %} {% block content %}
+
+<div class="container-fluid px-4 mt-4">
+  <!-- TÍTULO -->
+  <div class="text-center mb-4">
+    <h1 class="page-title">
+      <i class="fa-solid fa-vial-circle-check"></i>
+      SERVICIOS DISPONIBLES
+    </h1>
+    <div class="divider"></div>
+  </div>
+  <form method="GET" class="mb-4">
+    <input
+      type="text"
+      name="buscar"
+      value="{{ buscar }}"
+      class="form-control form-control-lg"
+      placeholder="🔍 Buscar examen por nombre o tipo"
+    />
+  </form>
+
+  <!-- TABLA -->
+  <div
+    class="card shadow-sm border-0"
+    style="border-radius: 15px; overflow: hidden"
+  >
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="tablaExamenes">
+        <thead class="bg-medical-blue text-white">
+          <tr>
+            <th>#</th>
+            <th>Nombre del Servicio</th>
+            <th>Precio del Servicio</th>
+            <th>Tipo</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for e in examen %} {% ifchanged e.tipo_exa %}
+          <tr>
+            <td colspan="4" class="bg-light fw-bold text-primary text-start">
+              {% if e.tipo_exa == "LABORATORIO" %}
+              <i class="fa-solid fa-flask-vial"></i>
+              LABORATORIO {% elif e.tipo_exa == "IMAGENEOLOGIA" %}
+              <i class="fa-solid fa-x-ray"></i> IMAGENOLOGÍA {% else %}
+              <i class="fa-solid fa-bandage"></i> OTROS SERVICIOS {% endif %}
+            </td>
+          </tr>
+          {% endifchanged %}
+
+          <tr class="fila-examen">
+            <!-- CONTADOR GLOBAL -->
+            <td>{{ forloop.counter0|add:examen.start_index }}</td>
+
+            <td>{{ e.nom_exa }}</td>
+
+            <td>
+              <span class="text-success fw-bold"> $ {{ e.precio_exa }} </span>
+            </td>
+
+            <td>
+              <span class="text-primary"> {{ e.tipo_exa }} </span>
+            </td>
+          </tr>
+
+          {% empty %}
+
+          <tr>
+            <td colspan="4" class="text-center text-muted">
+              No hay servicios registrados.
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white border-top-0">
+      <nav aria-label="Paginación de exámenes">
+        <ul class="pagination justify-content-center m-0">
+          <!-- ANTERIOR -->
+          <li
+            class="page-item {% if not examen.has_previous %}disabled{% endif %}"
+          >
+            {% if examen.has_previous %}
+            <a
+              class="page-link"
+              href="?buscar={{ buscar }}&page={{ examen.previous_page_number }}"
+            >
+              Anterior
+            </a>
+            {% else %}
+            <span class="page-link">Anterior</span>
+            {% endif %}
+          </li>
+
+          <!-- INFO CENTRAL -->
+          <li class="page-item active">
+            <span class="page-link">
+              Página {{ examen.number }} de {{ examen.paginator.num_pages }}
+            </span>
+          </li>
+
+          <!-- SIGUIENTE -->
+          <li class="page-item {% if not examen.has_next %}disabled{% endif %}">
+            {% if examen.has_next %}
+            <a
+              class="page-link"
+              href="?buscar={{ buscar }}&page={{ examen.next_page_number }}"
+            >
+              Siguiente
+            </a>
+            {% else %}
+            <span class="page-link">Siguiente</span>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ================= BUSCADOR JS ================= -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buscarInput = document.getElementById("buscarExamen");
+    const filas = document.querySelectorAll(".fila-examen");
+
+    buscarInput.addEventListener("keyup", function () {
+      const filtro = this.value.toLowerCase();
+
+      filas.forEach((fila) => {
+        const texto = fila.textContent.toLowerCase();
+
+        if (texto.includes(filtro)) {
+          fila.style.display = "";
+        } else {
+          fila.style.display = "none";
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

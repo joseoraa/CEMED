@@ -1,0 +1,35 @@
+{% comment %}
+Modal para eliminar un insumo.
+Se espera recibir:
+- insumo: objeto InsumoMedico
+{% endcomment %}
+
+<div class="modal fade" id="eliminarModal{{ insumo.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'eliminar_insumo' insumo.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header bg-danger text-white ">
+                    
+                    <h5 class="modal-title"><i class="fas fa-trash me-2"></i> Eliminar Insumo</h5>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p>¿Seguro que deseas eliminar el insumo:</p>
+                    <strong>{{ insumo.nombre_ins }}</strong> (Código: {{ insumo.codigo_ins }})?
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center mt-3 ">
+                    <button type="button" class="btn btn-pro btn-x btn-square btn-square-lg" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i>
+                        
+                    </button>
+                    <button type="submit" class="btn btn-pro btn-delete btn-square btn-square-lg">
+                        <i class="fas fa-trash me-2"></i> 
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

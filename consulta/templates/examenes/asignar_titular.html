@@ -1,0 +1,232 @@
+{% extends 'Inicio/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"/>
+
+<div class="container-fluid px-4 mt-4">
+
+<div class="card shadow-lg border-0"
+     style="border-radius:20px; overflow:hidden; margin-top:90px">
+
+    <div class="card-header text-center py-3"
+         style="background:linear-gradient(135deg,#0d6efd,#4dabf7);">
+
+        <h4 class="text-white mb-0">
+            <i class="fa-solid fa-user-plus"></i>
+            ASIGNAR TITULAR
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-warning">
+
+            <strong>Familiar:</strong>
+
+            {{ familiar.nombre }}
+            {{ familiar.apellido }}
+
+            no posee un paciente titular asociado.
+
+        </div>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <!-- OPCION -->
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="fw-bold">
+                        ¿Cómo desea asignar el titular?
+                    </label>
+
+                    <select
+                        class="form-select"
+                        name="tipo_titular"
+                        id="tipo_titular">
+
+                        <option value="">
+                            Seleccione...
+                        </option>
+
+                        <option value="EXISTENTE">
+                            Paciente Registrado
+                        </option>
+
+                        <option value="NUEVO">
+                            Registrar Paciente Nuevo
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- PACIENTE EXISTENTE -->
+
+            <div id="bloqueExistente"
+                 class="row d-none">
+
+                <div class="col-md-12 mb-3">
+
+                    <label class="fw-bold">
+                        Buscar Paciente
+                    </label>
+
+                    <select
+                        name="paciente_titular"
+                        id="paciente_titular"
+                        class="form-select">
+
+                        <option value="">
+                            ---------
+                        </option>
+
+                        {% for paciente in pacientes %}
+
+                        <option value="{{ paciente.id }}">
+                            {{ paciente.tipo_cedula }}-{{ paciente.cedula }}
+                            | {{ paciente.nombre }}
+                            {{ paciente.apellido }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- PACIENTE NUEVO -->
+
+            <div id="bloqueNuevo"
+                 class="d-none">
+
+                <div class="row">
+
+                    <div class="col-md-3 mb-3">
+                        <label>Cédula</label>
+                        <input type="text"
+                               name="cedula"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label>Nombre</label>
+                        <input type="text"
+                               name="nombre"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label>Apellido</label>
+                        <input type="text"
+                               name="apellido"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label>Sexo</label>
+
+                        <select
+                            name="sexo"
+                            class="form-select">
+
+                            <option value="MASCULINO">
+                                Masculino
+                            </option>
+
+                            <option value="FEMENINO">
+                                Femenino
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Fecha Nacimiento</label>
+
+                        <input
+                            type="date"
+                            name="fecha_nacimiento"
+                            class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Teléfono</label>
+
+                        <input
+                            type="text"
+                            name="telefono"
+                            class="form-control">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="text-center mt-4">
+
+                <button
+                    class="btn btn-success px-5">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Guardar
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+
+$(function(){
+
+    $('#paciente_titular').select2({
+        width:'100%',
+        placeholder:'Buscar paciente...'
+    });
+
+    $('#tipo_titular').change(function(){
+
+        let valor = $(this).val();
+
+        $('#bloqueExistente').addClass('d-none');
+        $('#bloqueNuevo').addClass('d-none');
+
+        if(valor === 'EXISTENTE'){
+            $('#bloqueExistente').removeClass('d-none');
+        }
+
+        if(valor === 'NUEVO'){
+            $('#bloqueNuevo').removeClass('d-none');
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

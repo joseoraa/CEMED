@@ -1,0 +1,82 @@
+{% if triaje %}
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center">
+                <h6>Temperatura</h6>
+                <h3>{{ triaje.temperatura }} °C</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center">
+                <h6>Tensión Arterial</h6>
+                <h3>{{ triaje.tension_arterial }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center">
+                <h6>Frecuencia Cardiaca</h6>
+                <h3>{{ triaje.frecuencia_cardiaca }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center">
+                <h6>Respiración</h6>
+                <h3>{{ triaje.frecuencia_respiratoria }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body text-center">
+                <h6>Saturación O₂</h6>
+                <h3>{{ triaje.saturacion_oxigeno }}%</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 PRIORIDAD COLOREADA -->
+    <div class="col-md-4">
+        <div class="card text-white shadow-sm
+            {% if triaje.prioridad == 'Alta' %} bg-danger
+            {% elif triaje.prioridad == 'Media' %} bg-warning text-dark
+            {% else %} bg-success {% endif %}">
+
+            <div class="card-body text-center">
+                <h6>Prioridad</h6>
+                <h3>{{ triaje.prioridad }}</h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6>Observación</h6>
+                <p>{{ triaje.observacion }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-warning text-center">
+    No hay triaje registrado para esta emergencia
+</div>
+
+{% endif %}

@@ -1,0 +1,186 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container-fluid px-4 mt-4">
+
+    <div class="text-center mb-4">
+        <h1 class="page-title">EDITAR CITA MÉDICA</h1>
+        <div class="divider"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Modificar Información de la Cita</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                ¿Para quién es la cita?
+                            </label>
+                            {{ form.tipo }}
+                        </div>
+
+                        <!-- PACIENTE -->
+                        <div class="mb-3" id="bloque-paciente" style="display:none;">
+                            <label class="form-label fw-bold">Paciente</label>
+                            {{ form.paciente }}
+                        </div>
+
+                        <!-- FAMILIAR -->
+                        <div class="mb-3" id="bloque-familiar" style="display:none;">
+                            <label class="form-label fw-bold">Familiar</label>
+                            {{ form.familiar }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Doctor</label>
+                            {{ form.doctor }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha</label>
+                                {{ form.fecha }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Hora</label>
+                                {{ form.hora }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Motivo</label>
+                            {{ form.motivo }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Estado</label>
+                            {{ form.estado }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'lista_citas' %}" class="btn btn-secondary rounded-pill px-4">
+                                Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                Actualizar
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const doctorSelect = document.getElementById('id_doctor');
+    const fechaInput = document.getElementById('id_fecha');
+    const horaSelect = document.getElementById('id_hora');
+
+    function cargarHorasDisponibles() {
+        const doctorId = doctorSelect.value;
+        const fecha = fechaInput.value;
+
+        horaSelect.innerHTML = '<option value="">Cargando horas...</option>';
+
+        if (!doctorId || !fecha) {
+            horaSelect.innerHTML = '<option value="">Seleccione primero doctor y fecha</option>';
+            return;
+        }
+
+        fetch(`/obtener-horas-disponibles/?doctor_id=${doctorId}&fecha=${fecha}`)
+            .then(response => response.json())
+            .then(data => {
+                horaSelect.innerHTML = '';
+
+                if (data.horas.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+                    return;
+                }
+
+                let defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccione una hora';
+                horaSelect.appendChild(defaultOption);
+
+                data.horas.forEach(hora => {
+                    let option = document.createElement('option');
+                    option.value = hora.value;
+                    option.textContent = hora.label;
+                    horaSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar horas:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+            });
+    }
+
+    if (doctorSelect && fechaInput && horaSelect) {
+        doctorSelect.addEventListener('change', cargarHorasDisponibles);
+        fechaInput.addEventListener('change', cargarHorasDisponibles);
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tipo = document.getElementById('id_tipo');
+
+    const bloquePaciente =
+        document.getElementById('bloque-paciente');
+
+    const bloqueFamiliar =
+        document.getElementById('bloque-familiar');
+
+    function toggleCampos() {
+
+        if (tipo.value === 'PACIENTE') {
+
+            bloquePaciente.style.display = 'block';
+            bloqueFamiliar.style.display = 'none';
+
+        }
+
+        else if (tipo.value === 'FAMILIAR') {
+
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'block';
+
+        }
+
+        else {
+
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'none';
+        }
+    }
+
+    tipo.addEventListener('change', toggleCampos);
+
+    // IMPORTANTE:
+    // para cargar correctamente al editar
+    toggleCampos();
+
+});
+
+
+</script>
+
+{% endblock %}

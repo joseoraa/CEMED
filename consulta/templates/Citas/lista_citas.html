@@ -1,0 +1,679 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container-fluid px-4 mt-4">
+
+    <div class="text-center mb-4">
+        <h1 class="page-title">GESTIÓN DE CITAS MÉDICAS</h1>
+        <div class="divider"></div>
+    </div>
+
+    <div class="mb-3 text-end">
+        <a href="{% url 'crear_cita_admin' %}" class="btn btn-pro btn-guardar btn-square btn-square-lg rounded-pill px-4">
+            <i class="fas fa-calendar-plus me-1"></i> 
+        </a>
+    </div>
+
+    {% comment %} <!-- BUSCADOR -->
+        <div class="mb-2">
+            <input type="text" id="buscarCita"
+                class="form-control form-control-lg"
+                placeholder="">
+        </div>  {% endcomment %}
+
+<form method="GET" id="filtrosForm">
+
+    <input type="text"
+           name="buscar"
+           value="{{ buscar }}"
+           class="form-control mb-3"
+           placeholder="🔍 Paciente, médico o estado">
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <input type="checkbox"
+               class="btn-check"
+               id="pendiente"
+               name="estado"
+               value="PENDIENTE"
+               onchange="document.getElementById('filtrosForm').submit()"
+               {% if "PENDIENTE" in estados_seleccionados %}checked{% endif %}>
+
+        <label class="btn btn-outline-warning" for="pendiente">Pendiente</label>
+
+        <input type="checkbox"
+               class="btn-check"
+               id="confirmada"
+               name="estado"
+               value="CONFIRMADA"
+               onchange="document.getElementById('filtrosForm').submit()"
+               {% if "CONFIRMADA" in estados_seleccionados %}checked{% endif %}>
+
+        <label class="btn btn-outline-primary" for="confirmada">Confirmada</label>
+
+        <input type="checkbox"
+               class="btn-check"
+               id="atendida"
+               name="estado"
+               value="ATENDIDA"
+               onchange="document.getElementById('filtrosForm').submit()"
+               {% if "ATENDIDA" in estados_seleccionados %}checked{% endif %}>
+
+        <label class="btn btn-outline-success" for="atendida">Atendida</label>
+
+        <input type="checkbox"
+               class="btn-check"
+               id="cancelada"
+               name="estado"
+               value="CANCELADA"
+               onchange="document.getElementById('filtrosForm').submit()"
+               {% if "CANCELADA" in estados_seleccionados %}checked{% endif %}>
+
+        <label class="btn btn-outline-danger" for="cancelada">Cancelada</label>
+
+        <input type="checkbox"
+               class="btn-check"
+               id="no_asistio"
+               name="estado"
+               value="NO_ASISTIO"
+               onchange="document.getElementById('filtrosForm').submit()"
+               {% if "NO_ASISTIO" in estados_seleccionados %}checked{% endif %}>
+
+        <label class="btn btn-outline-secondary" for="no_asistio">No asistió</label>
+
+    </div>
+</form>
+
+
+
+
+
+    <div id="alertMensajes" class="mt-3"></div>
+        <div class="table-responsive" style="overflow-x:auto;">
+                <table class="table table-hover align-middle mb-0" id="tablaCitas">
+                    <thead class="bg-medical-blue text-white">
+                    
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Paciente / Familiar</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+
+                            <td>
+                                {% if cita.paciente %}
+                                    <span class="text-primary">Paciente</span>
+                                {% else %}
+                                    <span class=" text-warning ">Familiar</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if cita.paciente %}
+                                    {{ cita.paciente.nombre }} {{ cita.paciente.apellido }}
+                                {% else %}
+                                    {{ cita.familiar.nombre }} {{ cita.familiar.apellido }} / 
+                                    <span class="text-success">{{ cita.paciente_real.nombre }}
+                                            {{ cita.paciente_real.apellido }}</span>
+                                {% endif %}
+                            </td>
+
+                                    
+                            <td>{{ cita.fecha }}</td>
+                            <td>{{ cita.hora }}</td>
+                            <td>
+                                {% if cita.estado == "PENDIENTE" %}
+                                    <span class="text-warning">Pendiente</span>
+                                {% elif cita.estado == "CONFIRMADA" %}
+                                    <span class="text-info">Confirmada</span>
+                                {% elif cita.estado == "ATENDIDA" %}
+                                    <span class="text-success">Atendida</span>
+                                {% elif cita.estado == "CANCELADA" %}
+                                    <span class="text-danger">Cancelada</span>
+                                {% elif cita.estado == "NO_ASISTIO" %}
+                                    <span class="text-secundary">No asistió</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="d-flex flex-wrap justify-content-center gap-1">
+
+                                    {% if cita.estado == "ATENDIDA" %}
+
+                                        <!-- 👇 SOLO FACTURA -->
+                                        <a href="{% url 'ver_factura' cita.id %}"
+                                        class="btn btn-pro btn-ver btn-square btn-square-sm rounded-pill">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                        </a>
+                                        <button class="btn btn-pro btn-guardar btn-square btn-square-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalCita{{ cita.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                                                        <!-- ================= CONFIRMADA ================= -->
+                                    {% elif cita.estado == "CONFIRMADA" %}
+                                        <button class="btn btn-pro btn-ver btn-square btn-square-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalCita{{ cita.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        
+                                        <a href="{% url 'atender_cita' cita.id %}"
+                                        class="btn btn-pro btn-square-sm btn-guardar btn-square rounded-pill">
+                                            <i class="fas fa-stethoscope"></i>
+                                        </a>
+
+
+                                    {% elif cita.estado == "CANCELADA" %}
+
+                                        <!-- EDITAR -->
+                                        <a href="{% url 'editar_cita_admin' cita.id %}"
+                                        class="btn btn-pro btn-edit btn-square btn-square-sm rounded-pill">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <!-- ELIMINAR -->
+                                        <a href="{% url 'eliminar_cita_admin' cita.id %}"
+                                        class="btn btn-pro btn-delete btn-square btn-square-sm rounded-pill"
+                                        onclick="return confirm('¿Eliminar esta cita? Esta acción no se puede deshacer.')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+
+                                    {% elif cita.estado == "PENDIENTE" %}
+
+
+                                        <a href="{% url 'confirmar_cita' cita.id %}"
+                                        class="btn btn-pro btn-ver btn-square btn-square-sm rounded-pill"
+                                        onclick="return confirm('¿Confirmar esta cita?')">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{% url 'cancelar_cita_admin' cita.id %}"
+                                        class="btn btn-pro btn-x btn-square btn-square-sm rounded-pill"
+                                        onclick="return confirm('¿Cancelar esta cita?')">
+                                            <i class="fas fa-ban"></i>
+                                        </a>
+                                    
+
+
+                                    {% else %}
+
+                                    {%endif%}
+                             
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay citas registradas.</td>
+                        </tr>
+                        {% endfor %}
+                        
+                    </tbody>
+                    
+                </table>
+{% if citas.has_other_pages %}
+<div class="card-footer bg-white">
+    <nav aria-label="Paginación de citas">
+        <ul class="pagination justify-content-center m-0">
+
+            <!-- ANTERIOR -->
+            <li class="page-item {% if not citas.has_previous %}disabled{% endif %}">
+                {% if citas.has_previous %}
+                    <a class="page-link"
+                       href="?page={{ citas.previous_page_number }}
+                       {% if buscar %}&buscar={{ buscar }}{% endif %}
+                       {% for e in estados_seleccionados %}&estado={{ e }}{% endfor %}">
+                        Anterior
+                    </a>
+                {% else %}
+                    <span class="page-link">Anterior</span>
+                {% endif %}
+            </li>
+
+            <!-- INFO -->
+            <li class="page-item active">
+                <span class="page-link">
+                    Página {{ citas.number }} de {{ citas.paginator.num_pages }}
+                </span>
+            </li>
+
+            <!-- SIGUIENTE -->
+            <li class="page-item {% if not citas.has_next %}disabled{% endif %}">
+                {% if citas.has_next %}
+                    <a class="page-link"
+                       href="?page={{ citas.next_page_number }}
+                       {% if buscar %}&buscar={{ buscar }}{% endif %}
+                       {% for e in estados_seleccionados %}&estado={{ e }}{% endfor %}">
+                        Siguiente
+                    </a>
+                {% else %}
+                    <span class="page-link">Siguiente</span>
+                {% endif %}
+            </li>
+
+        </ul>
+    </nav>
+</div>
+{% endif %}
+                  
+            </div>
+        </div>
+    </div>
+    </br> </br>
+
+
+
+
+{% for cita in citas %}
+<div class="modal fade" id="modalCita{{ cita.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+            <!-- HEADER -->
+            <div class="modal-header bg-medical-blue text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-notes-medical me-2"></i>
+                    DETALLE DE CITA MÉDICA
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body p-4">
+
+                <div class="row g-4">
+
+                    <!-- ===================================== -->
+                    <!-- DATOS DEL PACIENTE -->
+                    <!-- ===================================== -->
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm h-100 rounded-4">
+                            <div class="card-header bg-primary text-white fw-bold rounded-top-4">
+                                <i class="fas fa-user-injured me-2"></i>
+                                DATOS DEL PACIENTE
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        TIPO DE CITA
+                                    </small>
+
+                                    <div>
+                                        {% if cita.paciente %}
+                                            <span class="badge bg-primary">
+                                                PACIENTE
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">
+                                                FAMILIAR
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        NOMBRE COMPLETO
+                                    </small>
+
+                                    <div class="fw-semibold">
+                                        {% if cita.paciente %}
+                                            {{ cita.paciente.nombre }}
+                                            {{ cita.paciente.apellido }}
+                                        {% else %}
+                                            {{ cita.familiar.nombre }}
+                                            {{ cita.familiar.apellido }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        DOCUMENTO
+                                    </small>
+
+                                    <div>
+                                        {% if cita.paciente %}
+                                            {{ cita.paciente.tipo_cedula }}
+                                            {{ cita.paciente.cedula }}
+                                        {% else %}
+                                            {{ cita.familiar.paciente_titular.tipo_cedula }}
+                                            {{ cita.familiar.paciente_titular.cedula }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if cita.familiar %}
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        PARENTESCO
+                                    </small>
+
+                                    <div>
+                                        <span class="badge bg-info text-dark">
+                                            {{ cita.familiar.parentesco }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===================================== -->
+                    <!-- RESPONSABLE -->
+                    <!-- ===================================== -->
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm h-100 rounded-4">
+
+                            <div class="card-header bg-success text-white fw-bold rounded-top-4">
+                                <i class="fas fa-user-shield me-2"></i>
+                                RESPONSABLE / TITULAR
+                            </div>
+
+                            <div class="card-body">
+
+                                {% if cita.familiar %}
+
+                                    <div class="mb-3">
+                                        <small class="text-muted fw-bold">
+                                            NOMBRE COMPLETO
+                                        </small>
+
+                                        <div class="fw-semibold">
+                                            {{ cita.familiar.paciente_titular.nombre }}
+                                            {{ cita.familiar.paciente_titular.apellido }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted fw-bold">
+                                            DOCUMENTO
+                                        </small>
+
+                                        <div>
+                                            {{ cita.familiar.paciente_titular.tipo_cedula }}
+                                            {{ cita.familiar.paciente_titular.cedula }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted fw-bold">
+                                            CORREO
+                                        </small>
+
+                                        <div>
+                                            {{ cita.familiar.paciente_titular.email|default:"No registrado" }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <small class="text-muted fw-bold">
+                                            TELÉFONO
+                                        </small>
+
+                                        <div>
+                                            {{ cita.familiar.paciente_titular.telefono|default:"No registrado" }}
+                                        </div>
+                                    </div>
+
+                                {% else %}
+
+                                    <div class="alert alert-light border rounded-3 mb-0">
+                                        Esta cita no posee responsable adicional.
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===================================== -->
+                    <!-- DATOS DE LA CITA -->
+                    <!-- ===================================== -->
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                            <div class="card-header bg-info text-dark fw-bold rounded-top-4">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                INFORMACIÓN DE LA CITA
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        FECHA
+                                    </small>
+
+                                    <div>
+                                        {{ cita.fecha }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        HORA
+                                    </small>
+
+                                    <div>
+                                        {{ cita.hora }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        ESTADO
+                                    </small>
+
+                                    <div>
+                                        {% if cita.estado == "PENDIENTE" %}
+                                            <span class="badge bg-warning">
+                                                Pendiente
+                                            </span>
+
+                                        {% elif cita.estado == "CONFIRMADA" %}
+                                            <span class="badge bg-info">
+                                                Confirmada
+                                            </span>
+
+                                        {% elif cita.estado == "ATENDIDA" %}
+                                            <span class="badge bg-success">
+                                                Atendida
+                                            </span>
+
+                                        {% elif cita.estado == "CANCELADA" %}
+                                            <span class="badge bg-danger">
+                                                Cancelada
+                                            </span>
+
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        MOTIVO
+                                    </small>
+
+                                    <div>
+                                        {{ cita.motivo|default:"Sin motivo registrado" }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===================================== -->
+                    <!-- DATOS MÉDICOS -->
+                    <!-- ===================================== -->
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                            <div class="card-header bg-dark text-white fw-bold rounded-top-4">
+                                <i class="fas fa-user-md me-2"></i>
+                                DATOS MÉDICOS
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        MÉDICO
+                                    </small>
+
+                                    <div>
+                                        Dr.
+                                        {{ cita.doctor.usuario.nombre }}
+                                        {{ cita.doctor.usuario.apellido }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        ESPECIALIDAD
+                                    </small>
+
+                                    <div>
+                                        {{ cita.doctor.especialidad|default:"No registrada" }}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">
+                                        CREADO POR
+                                    </small>
+
+                                    <div>
+                                        {% if cita.creado_por %}
+                                            {{ cita.creado_por.nombre }}
+                                            {{ cita.creado_por.apellido }}
+                                        {% else %}
+                                            Sistema
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary rounded-pill px-4"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const buscarInput = document.getElementById('buscarCita');
+
+    buscarInput.addEventListener('keyup', function() {
+
+        const filtro = this.value.toLowerCase().trim();
+
+        document.querySelectorAll('#tablaCitas tbody tr').forEach(row => {
+
+            if (row.cells.length <= 1) return;
+
+            const tipo = row.cells[0].innerText.toLowerCase().trim();
+            const paciente = row.cells[1].innerText.toLowerCase().trim();
+            const fecha = row.cells[2].innerText.toLowerCase().trim();
+            const hora = row.cells[3].innerText.toLowerCase().trim();
+            const estado = row.cells[4].innerText.toLowerCase().trim();
+
+            const textoBusqueda =
+                `${tipo} ${paciente} ${fecha} ${hora} ${estado}`;
+
+            row.style.display =
+                textoBusqueda.includes(filtro) ? '' : 'none';
+        });
+
+    });
+
+
+    const buscarInput = document.getElementById('buscarCita');
+    const checkboxes = document.querySelectorAll('.filtro-estado');
+
+    function obtenerEstadosSeleccionados() {
+        return Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value.toLowerCase());
+    }
+
+    function filtrarTabla() {
+
+        const filtroTexto = buscarInput.value.toLowerCase().trim();
+        const estadosSeleccionados = obtenerEstadosSeleccionados();
+
+        document.querySelectorAll('#tablaCitas tbody tr').forEach(row => {
+
+            if (row.cells.length <= 1) return;
+
+            const tipo = row.cells[0].innerText.toLowerCase();
+            const paciente = row.cells[1].innerText.toLowerCase();
+            const fecha = row.cells[2].innerText.toLowerCase();
+            const hora = row.cells[3].innerText.toLowerCase();
+            const estado = row.cells[4].innerText.toLowerCase();
+
+            const textoBusqueda = `${tipo} ${paciente} ${fecha} ${hora} ${estado}`;
+
+            const coincideTexto = textoBusqueda.includes(filtroTexto);
+            const coincideEstado = estadosSeleccionados.includes(estado);
+
+            row.style.display = (coincideTexto && coincideEstado) ? '' : 'none';
+        });
+    }
+
+    // búsqueda por texto
+    buscarInput.addEventListener('keyup', filtrarTabla);
+
+    // filtro por checkbox
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', filtrarTabla);
+    });
+
+});
+</script>
+
+{% endblock %}

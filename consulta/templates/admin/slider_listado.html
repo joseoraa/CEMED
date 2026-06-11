@@ -1,0 +1,48 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5 mb-4">
+    <h1 class="page-title text-center">Listado de Imágenes del Slider</h1>
+
+    <div class="row">
+        {% for img in imagenes %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <img src="{{ img.imagen.url }}" class="card-img-top" alt="Imagen">
+                <div class="card-body">
+                    <p class="card-text">Estado: 
+                        {% if img.activo %}
+                            <span class="badge bg-success"><i class="fa-solid fa-toggle-on"></i></span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fa-solid fa-toggle-off"></i></span>
+                        {% endif %}
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'alternar_estado_slider' img.pk %}" 
+                        class="btn btn-sm shadow-sm fw-bold px-3 py-1 
+                                {% if img.activo %}btn-outline-danger{% else %}btn-success{% endif %}"
+                        style="border-radius: 20px; transition: all 0.3s ease;">
+                            
+                            {% if img.activo %}
+                                <i class="fa-solid fa-power-off me-2"></i> 
+                            {% else %}
+                                <i class="fa-solid fa-play me-2"></i> 
+                            {% endif %}
+
+                        </a>
+                        <a href="{% url 'eliminar_slider' img.pk %}" class="btn btn-pro btn-delete btn-square btn-square-sm"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No hay imágenes en el slider.</p>
+        {% endfor %}
+    </div>
+
+    <div class="mt-3 text-center">
+        <a href="{% url 'slider_agregar' %}" class="btn btn-pro btn-guardar btn-square btn-square-lg mb-4"><i class="fa-solid fa-plus"></i></a>
+    </div>
+</div>
+{% endblock %}

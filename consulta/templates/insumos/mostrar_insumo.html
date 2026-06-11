@@ -1,0 +1,50 @@
+                <div class="modal fade" id="mostrarModal{{ i.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content border-info">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-eye me-2"></i>Detalle del insumo medico
+                                </h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card shadow-sm border-light">
+                                            <div class="card-body p-2">
+                                                <p class="mb-1"><strong>Código:</strong> {{ i.codigo_ins }}</p>
+                                                <p class="mb-1"><strong>Nombre:</strong> {{ i.nombre_ins }}</p>
+                                                <p class="mb-1"><strong>Presentación:</strong> {{ i.presentacion_ins }}</p>
+                                                <p class="mb-1"><strong>Cantidad:</strong> {{ i.cantidad_ins }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="card shadow-sm border-light">
+                                            <div class="card-body p-2">
+                                                <p class="mb-1"><strong>Precio Unitario:</strong> ${{ i.precio_unitario_ins }}</p>
+                                                <p class="mb-1"><strong>Fecha de Caducidad:</strong> {{ i.fecha_caducidad_ins }}</p>
+                                                <p class="mb-1"><strong>Proveedor:</strong> {{ i.proveedor_ins|default:"-" }}</p>
+                                                <p class="mb-1"><strong>Descripción:</strong> {{ i.descripcion_ins|default:"-" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border-light">
+                                            <div class="card-body p-2">
+                                                <p class="mb-1"><strong>Creado:</strong> {{ i.creado_en_ins|date:"d/m/Y H:i" }}</p>
+                                                <p class="mb-0"><strong>Última Actualización:</strong> {{ i.actualizado_en_ins|date:"d/m/Y H:i" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center mt-3">
+                                <button type="button" class="btn btn-pro btn-x btn-square btn-square-lg" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i>
+                                
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>

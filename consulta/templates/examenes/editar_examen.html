@@ -1,0 +1,139 @@
+<div class="modal fade" id="editarModal{{ e.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+
+            <form method="POST" action="{% url 'editar_examen' e.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header border-0 d-flex justify-content-between align-items-center"
+                style="background: linear-gradient(90deg, #0744ac, #11b5cb); padding: 1.5rem;">
+
+                    <h5 class="modal-title fw-bold text-white text-center w-100">
+                        <i class="fa-solid fa-pen-to-square me-2"></i> EDITAR EXAMEN
+                    </h5>
+
+                    <button type="button"
+                    class="btn-close btn-close-white shadow-none"
+                    data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body p-4 bg-light">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                            Código
+                            </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                            <i class="fa-solid fa-barcode text-primary"></i>
+                            </span>
+
+                            <input type="text"
+                            name="codigo_exa"
+                            class="form-control"
+                            value="{{ e.codigo_exa }}"
+                            required>
+
+                            </div>
+                        </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">
+                        Nombre del Examen
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                            <i class="fa-solid fa-vial text-primary"></i>
+                            </span>
+
+                            <input type="text"
+                            name="nom_exa"
+                            class="form-control"
+                            value="{{ e.nom_exa }}"
+                            required>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                            Tipo de Examen
+                            </label>
+
+                        <div class="input-group">
+                             <span class="input-group-text bg-white">
+                                <i class="fa-solid fa-flask text-primary"></i>
+                            </span>
+
+                            <input type="text"
+                                name="tipo_exa"
+                                class="form-control"
+                                value="{{ e.tipo_exa }}"
+                                required>
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                            Precio ($)
+                            </label>
+
+                        <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                <i class="fa-solid fa-dollar-sign text-primary"></i>
+                                </span>
+
+                                <input type="number"
+                                step="0.01"
+                                name="precio_exa"
+                                class="form-control"
+                                value="{{ e.precio_exa }}"
+                                required>
+
+                        </div>
+                    </div>
+
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                            Características
+                            </label>
+
+                            <div class="input-group">
+                            <span class="input-group-text bg-white align-items-start pt-2">
+                            <i class="fa-solid fa-comment-medical text-primary"></i>
+                            </span>
+
+                            <textarea name="caracteristica_exa"
+                            class="form-control"
+                            rows="3">{{ e.caracteristica_exa }}</textarea>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+                <div class="d-flex justify-content-center mb-3">
+                    <button type="submit"
+                    class="btn btn-pro btn-guardar btn-square btn-square-lg">
+                    <i class="fas fa-save"></i>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

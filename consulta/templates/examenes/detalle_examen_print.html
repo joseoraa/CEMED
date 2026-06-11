@@ -1,0 +1,135 @@
+
+{% block content %}
+<div class="container" style="max-width: 1000px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+
+    <div class="text-center mb-4">
+        <h2 style="margin-bottom: 5px;">CLÍNICA - DETALLE DE EXAMEN</h2>
+        <p style="color: #666; margin: 0;">ID: #{{ examen.id }} &nbsp;&nbsp; Fecha: {{ examen.fecha|date:'d/m/Y H:i' }}</p>
+        <hr>
+    </div>
+
+    <!-- Información General -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+        <tr>
+            <td style="padding: 8px 0;"><strong>Paciente:</strong></td>
+            <td style="padding: 8px 0;">
+                            {% if examen.familiar %}
+
+                                <div>
+                                    <strong>
+                                        {{ examen.familiar.nombre }}
+                                        {{ examen.familiar.apellido }}
+                                    </strong>
+                                    <br>
+
+                                    <small class="text-muted d-block mt-1">
+                                        Titular:
+                                        {{ examen.familiar.paciente_titular.nombre }}
+                                        {{ examen.familiar.paciente_titular.apellido }}
+                                    </small>
+                                </div>
+
+                            {% else %}
+
+                                {{ examen.paciente.nombre }}
+                                {{ examen.paciente.apellido }}
+
+                            {% endif %}            
+            
+            
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0;"><strong>Doctor:</strong></td>
+            <td style="padding: 8px 0;">{{ examen.doctor|default:"—" }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0;"><strong>Fecha:</strong></td>
+            <td style="padding: 8px 0;">{{ examen.fecha|date:'d/m/Y H:i' }}</td>
+        </tr>
+        {% if examen.observacion %}
+        <tr>
+            <td style="padding: 8px 0; vertical-align: top;"><strong>Observación:</strong></td>
+            <td style="padding: 8px 0;">{{ examen.observacion }}</td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <!-- Exámenes -->
+    <h4 style="background-color: #0dcaf0; color: white; padding: 10px; margin-bottom: 10px;">EXÁMENES REALIZADOS</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;" border="1">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="padding: 10px; text-align: left;">Examen</th>
+                <th style="padding: 10px; text-align: right;">Precio Unitario</th>
+                <th style="padding: 10px; text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in examen.examenes_realizados.all %}
+            <tr>
+                <td style="padding: 10px;">{{ item.examen }}</td>
+                <td style="padding: 10px; text-align: right;">$ {{ item.examen.precio_exa|floatformat:2 }}</td>
+                <td style="padding: 10px; text-align: right;">$ {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Insumos -->
+    <h4 style="background-color: #198754; color: white; padding: 10px; margin-bottom: 10px;">INSUMOS UTILIZADOS</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;" border="1">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="padding: 10px; text-align: left;">Insumo</th>
+                <th style="padding: 10px; text-align: center;">Cantidad</th>
+                <th style="padding: 10px; text-align: right;">Precio Unitario</th>
+                <th style="padding: 10px; text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in examen.insumos.all %}
+            <tr>
+                <td style="padding: 10px;">{{ item.insumo.nombre_ins }}</td>
+                <td style="padding: 10px; text-align: center;">{{ item.cantidad }}</td>
+                <td style="padding: 10px; text-align: right;">$ {{ item.insumo.precio_unitario_ins|floatformat:2 }}</td>
+                <td style="padding: 10px; text-align: right;">$ {{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding: 15px; text-align: center; color: #666;">No se utilizaron insumos</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totales -->
+    <div style="text-align: right; margin-top: 30px; border-top: 2px solid #000; padding-top: 15px;">
+        <table style="width: 350px; margin-left: auto;">
+            <tr>
+                <td><strong>Total Exámenes:</strong></td>
+                <td style="text-align: right;">$ {{ total_examenes|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Total Insumos:</strong></td>
+                <td style="text-align: right;">$ {{ total_insumos|floatformat:2 }}</td>
+            </tr>
+            <tr style="font-size: 1.3em; border-top: 2px solid #000;">
+                <td><strong>TOTAL A PAGAR:</strong></td>
+                <td style="text-align: right; font-weight: bold; color: #198754;">
+                    $ {{ examen.total|floatformat:2 }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top: 50px; text-align: center; color: #666; font-size: 0.9em;">
+        <p>Documento generado automáticamente • {{ now|date:"d/m/Y H:i" }}</p>
+    </div>
+
+</div>
+
+<script>
+    // Opcional: imprimir automáticamente al cargar (descomenta si quieres)
+    window.onload = function() { window.print(); }
+</script>
+
+{% endblock %}

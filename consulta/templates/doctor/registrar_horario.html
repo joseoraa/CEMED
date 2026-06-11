@@ -1,0 +1,232 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <!-- Título principal -->
+            <div class="text-center mb-5">
+                <h1 class="page-title fw-bold text-primary">
+                    <i class="fas fa-calendar-alt me-3"></i>Registrar Mi Horario
+                </h1>
+                <p class="text-muted">Gestiona tus horarios semanales de forma sencilla</p>
+            </div>
+
+            {% if errores %}
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <strong>¡Atención!</strong>
+                <ul class="mb-0 mt-2">
+                    {% for e in errores %}
+                    <li>{{ e }}</li>
+                    {% endfor %}
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <!-- Formulario para agregar horarios -->
+            <div class="card shadow-lg border-0 mb-5">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Agregar Nuevo(s) Horario(s)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="horario-form">
+                        {% csrf_token %}
+
+                        <div id="forms-container">
+                            <!-- Primer formulario -->
+                            {% comment %} <div class="horario-form card border border-2 border-light shadow-sm p-4 mb-4 position-relative">
+                                {{ form.as_p }}
+                                <button type="button" class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-3">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div> {% endcomment %}
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <button type="button" id="btn-add" class="btn btn-ver btn-pro btn-square btn-square-lg">
+                                <i class="fas fa-plus me-2"></i> 
+                            </button>
+                            <button type="submit" class="btn btn-guardar btn-pro btn-square-lg btn-square">
+                                <i class="fas fa-floppy-disk me-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Template oculto para clonar -->
+            <div id="form-template" class="d-none">
+                <div class="horario-form card border border-2 border-light ">
+                    {{ form.as_p }}
+                    <button type="button" class="btn btn-delete btn-pro btn-square btn-square-lg">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección de Horarios Registrados -->
+            <h2 class="text-center mb-4 fw-bold text-dark">
+                <i class="fas fa-clock me-2"></i>Mi Horario Actual
+            </h2>
+
+            {% if horarios %}
+            <div class="row g-4">
+                {% for h in horarios %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 hover-shadow transition-all">
+                        <div class="card-body text-center py-4">
+                            <div class="mb-3">
+                                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                    <i class="fas fa-calendar-day me-2"></i>{{ h.dia }}
+                                </span>
+                            </div>
+                            
+                            <div class="display-6 fw-bold text-primary mb-2">
+                                {{ h.hora_inicio }} - {{ h.hora_fin }}
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-2 mt-4">
+                                <!-- Botón Editar -->
+                                <button type="button" class="btn btn-edit btn-square btn-square-md btn-pro" 
+                                        data-bs-toggle="modal" data-bs-target="#editarModal{{ h.id }}">
+                                    <i class="fas fa-pen me-1"></i> 
+                                </button>
+                                
+                                <!-- Botón Eliminar -->
+                                <button type="button" class="btn btn-delete btn-pro btn-square btn-square-md " 
+                                        data-bs-toggle="modal" data-bs-target="#eliminarModal{{ h.id }}">
+                                    <i class="fas fa-trash-alt me-1"></i> 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Editar -->
+                <div class="modal fade" id="editarModal{{ h.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow">
+                      <form method="POST" action="{% url 'editar_horario' h.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-0">
+                          <h5 class="modal-title fw-bold">
+                            <i class="fas fa-pen me-2 text-warning"></i>Editar Horario
+                          </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label class="form-label fw-medium">Día de la Semana</label>
+                            <select name="dia" class="form-select">
+                              <option value="{{ h.dia }}" selected>{{ h.dia }}</option>
+                              <option value="Lunes">Lunes</option>
+                              <option value="Martes">Martes</option>
+                              <option value="Miércoles">Miércoles</option>
+                              <option value="Jueves">Jueves</option>
+                              <option value="Viernes">Viernes</option>
+                              <option value="Sábado">Sábado</option>
+                              <option value="Domingo">Domingo</option>
+                            </select>
+                          </div>
+                          <div class="row">
+                            <div class="col-6">
+                              <label class="form-label fw-medium">Hora Inicio</label>
+                              <input type="time" name="hora_inicio" class="form-control" value="{{ h.hora_inicio }}">
+                            </div>
+                            <div class="col-6">
+                              <label class="form-label fw-medium">Hora Fin</label>
+                              <input type="time" name="hora_fin" class="form-control" value="{{ h.hora_fin }}">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                          <button type="button" class="btn btn-x btn-pro btn-square-md btn-square px-4" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn btn-guardar btn-pro btn-square btn-square-md px-4">Guardar Cambios</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modal Eliminar -->
+                <div class="modal fade" id="eliminarModal{{ h.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow">
+                      <form method="POST" action="{% url 'eliminar_horario' h.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-0">
+                          <h5 class="modal-title  fw-bold">
+                            <i class="fas fa-trash-alt me-2"></i>Eliminar Horario
+                          </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                          <p class="mb-0">
+                            ¿Estás seguro de eliminar el horario de <strong>{{ h.dia }}</strong><br>
+                            de <strong>{{ h.hora_inicio }} a {{ h.hora_fin }}</strong>?
+                          </p>
+                        </div>
+                        <div class="modal-footer border-0">
+                          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center py-5 shadow-sm">
+                <i class="fas fa-calendar-xmark fa-3x text-muted mb-3"></i>
+                <h5>No tienes horarios registrados aún</h5>
+                <p class="text-muted">¡Agrega tus horarios usando el formulario de arriba!</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+// Agregar nuevo formulario
+document.getElementById("btn-add").addEventListener("click", function() {
+    const template = document.getElementById("form-template").innerHTML;
+    const container = document.getElementById("forms-container");
+    container.insertAdjacentHTML("beforeend", template);
+});
+
+// Eliminar formulario dinámico
+document.getElementById("forms-container").addEventListener("click", function(e) {
+    if (e.target.closest(".btn-remove")) {
+        const formCard = e.target.closest(".horario-form");
+        if (confirm("¿Eliminar este formulario?")) {
+            formCard.remove();
+        }
+    }
+});
+</script>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+.transition-all {
+    transition: all 0.3s ease;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'Inicio/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid px-4">
+
+    <div class="text-center mb-4">
+        <h1 class="page-title">
+            <i class="fa-solid fa-file-medical"></i> DETALLE DEL EXAMEN
+        </h1>
+        <div class="divider"></div>
+    </div>
+
+    <!-- Información General -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0 fw-bold">Información General</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6"><strong>Nombre y Apellidos:</strong>                                         </div>
+                <div class="col-md-6"><strong>Médico:</strong> {{ examen.doctor|default:"— " }}</div>
+                <div class="col-md-6"><strong>Fecha:</strong> {{ examen.fecha|date:'d/m/Y H:i' }}</div>
+                <div class="col-md-12">
+                    <strong>Observación:</strong>
+                    <div class="mt-2 p-3 bg-light rounded-3">
+                        {{ examen.observacion|default:"Sin observaciones" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exámenes Realizados -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-info text-white py-3">
+            <h5 class="mb-0 fw-bold">Exámenes Realizados</h5>
+        </div>
+        <div class="card-body p-4">
+            <table class="table table-bordered text-center">
+                <thead class="table-info">
+                    <tr>
+                        <th>Examen</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in examen.examenes_realizados.all %}
+                    <tr>
+                        <td class="text-start">{{ item.examen }}</td>
+                        <td>$ {{ item.examen.precio_exa|floatformat:2 }}</td>
+                        <td class="fw-bold">$ {{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-muted">No hay exámenes</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Insumos -->
+    <div class="card shadow-lg border-0 rounded-4 mb-4">
+        <div class="card-header bg-success text-white py-3">
+            <h5 class="mb-0 fw-bold">Insumos Utilizados</h5>
+        </div>
+        <div class="card-body p-4">
+            <table class="table table-bordered text-center">
+                <thead class="table-success">
+                    <tr>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in examen.insumos.all %}
+                    <tr>
+                        <td class="text-start">{{ item.insumo.nombre_ins }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>$ {{ item.insumo.precio_unitario_ins|floatformat:2 }}</td>
+                        <td class="fw-bold">$ {{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted">No se utilizaron insumos</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen de Totales -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 fw-bold">Resumen Final</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row justify-content-end">
+                <div class="col-md-5">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-end pe-4"><strong>Total Exámenes:</strong></td>
+                            <td class="text-end fw-bold">$ {{ total_examenes|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-end pe-4"><strong>Total Insumos:</strong></td>
+                            <td class="text-end fw-bold">$ {{ total_insumos|floatformat:2 }}</td>
+                        </tr>
+                        <tr class="border-top border-2">
+                            <td class="text-end pe-4"><h5 class="mb-0"><strong>TOTAL GENERAL:</strong></h5></td>
+                            <td class="text-end">
+                                <h4 class="fw-bold text-success mb-0">
+                                    $ {{ examen.total|floatformat:2 }}
+                                </h4>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'detalle_examen_print' examen.id %}" 
+                target="_blank" 
+                class="btn btn-pro btn-guardar btn-square btn-square-lg">
+                    <i class="fa-solid fa-print"></i>
+                </a>
+            </div>
+        </div>
+        
+       
+    </div>
+    
+</div>
+<br>
+
+{% endblock %}

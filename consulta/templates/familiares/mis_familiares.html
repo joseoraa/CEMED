@@ -1,0 +1,185 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid px-4" style="margin-top:90px;">
+
+    <!-- TITULO -->
+    <div class="card shadow-lg border-0 mb-4"
+         style="border-radius:20px; overflow:hidden;">
+
+        <div class="card-header py-3 text-center"
+             style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+
+            <h4 class="m-0 font-weight-bold text-white"
+                style="letter-spacing:1px;">
+
+                <i class="fa-solid fa-users"></i>
+                MI CARGA FAMILIAR
+
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            <!-- BOTON -->
+            <div class="d-flex justify-content-end mb-3">
+
+                <a href="{% url 'crear_familiar_paciente' %}"
+                   class="btn btn-pro btn-guardar">
+
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    AGREGAR FAMILIAR
+
+                </a>
+
+            </div>
+
+            <!-- TABLA -->
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead style="background:#195CBD; color:white;">
+
+                        <tr class="text-center">
+
+                            <th>#</th>
+                            <th>Nombre Completo</th>
+                            <th>Sexo</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Parentesco</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for familiar in familiares %}
+
+                            <tr class="text-center">
+
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+
+                                <td class="fw-semibold">
+                                    {{ familiar.nombre }}
+                                    {{ familiar.apellido }}
+                                </td>
+
+                                <td>
+                                    {{ familiar.get_sexo_display }}
+                                </td>
+
+                                <td>
+                                    {{ familiar.fecha_nacimiento }}
+                                </td>
+
+                                <td>
+                                    <span class="text-primary">
+                                        {{ familiar.get_parentesco_display }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if familiar.telefono %}
+                                        {{ familiar.telefono }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Sin teléfono
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+
+                                    {% if familiar.activo %}
+
+                                        <span class="badge bg-success">
+                                            ACTIVO
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger">
+                                            INACTIVO
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <div class="d-flex justify-content-center gap-2">
+
+                                        <!-- EDITAR -->
+                                        <a href="{% url 'editar_familiar_paciente' familiar.id %}"
+                                           class="btn btn-pro btn-square btn-square-md btn-edit">
+
+                                            <i class="fa-solid fa-pen"></i>
+
+                                        </a>
+                                        <a href="{% url 'eliminar_familiar_paciente' familiar.id %}"
+                                    class="btn btn-pro btn-square btn-square-md btn-delete"
+                                    onclick="return confirm('¿Desea eliminar este familiar?');">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="8" class="text-center py-5">
+
+                                    <img src="{% static 'img/no-data.svg' %}"
+                                         width="120"
+                                         class="mb-3">
+
+                                    <h5 class="text-muted">
+                                        No tienes familiares registrados
+                                    </h5>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- BOTON HOME -->
+            <div class="text-center mt-4">
+
+                <a href="{% url 'pacientes_home' %}"
+                   class="btn btn-pro btn-edit btn-square btn-square-lg">
+
+                    <i class="fa-solid fa-house-user"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

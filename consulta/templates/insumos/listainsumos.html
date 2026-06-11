@@ -1,0 +1,316 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Alertas de Stock -->
+{% if insumos_bajos %}
+<div class="alert alert-danger mx-4 mt-3">
+    🚨 Stock bajo:
+    <ul class="mb-0">
+        {% for i in insumos_bajos %}
+            <li>{{ i.nombre_ins }} ({{ i.cantidad_ins }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="text-center mb-4">
+        <h1 class="page-title">LISTADO DE INSUMOS MÉDICOS</h1>
+        <div class="divider"></div>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="mb-4">
+        <input type="text" id="buscarInsumo" class="form-control form-control-lg" placeholder="🔍 Escriba Código o nombre del Insumo Médico">
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="tablaInsumos">
+                <thead class="bg-medical-blue text-white">
+                    <tr>
+                        <th>#</th>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla">
+                    {% for i in insumos %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.codigo_ins }}</td>
+                        <td>{{ i.nombre_ins }}</td>
+                        <td class="fw-bold text-primary">{{ i.cantidad_ins }}</td>
+                        <td>
+                            <!-- BOTONES ORIGINALES -->
+                            <button class="btn btn-pro btn-success btn-square btn-square-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#entradaModal{{ i.id }}" 
+                                        title="Entrada de Stock">
+                                    <i class="fas fa-plus"></i>
+                            </button>
+
+                            <button class="btn btn-pro btn-guardar btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#historialModal{{ i.id }}" title="Ver Historial">
+                                <i class="fas fa-history"></i>
+                            </button>
+                            <button class="btn btn-pro btn-ver btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#mostrarModal{{ i.id }}" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-pro btn-edit btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#editarModal{{ i.id }}" title="Editar">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-pro btn-delete btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal{{ i.id }}" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Contenedor Paginación -->
+        <div id="paginacionInsumos" class="py-3 d-flex justify-content-center"></div>
+    </div>
+</div>
+<!-- MODALES (Fuera de la tabla para que no se pierdan al buscar) -->
+{% for i in insumos.paginator.object_list %}
+    {% include "insumos/mostrar_insumo.html" with i=i %} 
+    {% include "insumos/editar_insumo.html" with insumo=i %}
+    {% include "insumos/eliminar_insumo.html" with insumo=i %}
+    {% include "insumos/entrada_insumo.html" with insumo=i %}
+{% endfor %}
+
+
+
+
+
+{% for m in modales_data %}
+
+<div class="modal fade" id="historialModal{{ m.insumo.id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    Historial: {{ m.insumo.nombre_ins }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- RESUMEN -->
+                <div class="row mb-4">
+
+                    <div class="col-md-4">
+                        <div class="card border-success shadow-sm text-center">
+                            <h6 class="text-success">Entradas</h6>
+                            <h3>{{ m.total_entradas }}</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-danger shadow-sm text-center">
+                            <h6 class="text-danger">Salidas</h6>
+                            <h3>{{ m.total_salidas }}</h3>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-primary shadow-sm text-center">
+                            <h6 class="text-primary">Stock</h6>
+                            <h3>{{ m.insumo.cantidad_ins }}</h3>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TABLA -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Stock Ant.</th>
+                                <th>Stock Act.</th>
+                                <th>Usuario</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for mov in m.movimientos %}
+                            <tr>
+                                <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+
+                                <td>
+                                    {% if mov.tipo == 'ENTRADA' %}
+                                        <span class="text-success">Entrada</span>
+                                    {% else %}
+                                        <span class="text-danger">Salida</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ mov.cantidad }}</td>
+                                <td>{{ mov.stock_anterior }}</td>
+                                <td>{{ mov.stock_actual }}</td>
+
+                                <td>
+                                    {% if mov.usuario %}
+                                       {{mov.usuario.tipo_cedula}}-{{ mov.usuario.cedula }}<br>{{ mov.usuario.nombre }} {{ mov.usuario.apellido }}
+                                    {% else %}
+                                    
+                                    {% endif %}
+                                </td>
+
+                                <td>
+
+                                    {% if mov.cita %}
+                                        <span class="text-primary">
+                                            <strong>Cita #{{ mov.cita.id }}</strong><br>
+
+                                            Paciente:
+                                            {{ mov.cita.paciente.nombre }} {{ mov.cita.paciente.apellido }}<br>
+
+                                            Doctor:
+                                            Dr. {{ mov.cita.doctor.usuario.nombre }} {{ mov.cita.doctor.usuario.apellido }}
+                                        </span>
+
+                                    {% elif mov.realizar_examen %}
+                                        <span class="text-success">
+                                            <strong>Examen #{{ mov.realizar_examen.id }}</strong><br>
+                                            Paciente: {{ mov.realizar_examen.paciente.nombre }} {{ mov.realizar_examen.paciente.apellido }}<br>
+                                            Doctor: Dr. {{ mov.realizar_examen.doctor.nombre }} {{ mov.realizar_examen.doctor.apellido }}
+                                        </span>
+
+                                    {% else %}
+                                        <span class="text-info">
+                                            Inventario / Entrada
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    Sin movimientos
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+
+
+
+
+
+
+
+
+
+
+<br>
+
+
+<script>
+const inputBusqueda = document.getElementById('buscarInsumo');
+const cuerpoTabla = document.getElementById('cuerpoTabla');
+const divPaginacion = document.getElementById('paginacionInsumos');
+let timeoutBusqueda = null;
+
+// Función principal para cargar datos
+function cargarInsumos(query = '', page = 1) {
+    // REEMPLAZA '/tu-url-de-insumos/' por la URL real de tu vista
+    fetch(`?q=${query}&page=${page}&ajax=1`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        renderTabla(data.insumos, data.number);
+        renderPaginacion(data);
+    })
+    .catch(err => console.error("Error en búsqueda:", err));
+}
+
+function renderTabla(insumos, pageNum) {
+    cuerpoTabla.innerHTML = '';
+    if (insumos.length === 0) {
+        cuerpoTabla.innerHTML = '<tr><td colspan="6" class="text-center text-muted p-4">No se encontraron resultados</td></tr>';
+        return;
+    }
+
+    insumos.forEach((i, index) => {
+        const correlativo = ((pageNum - 1) * 10) + (index + 1);
+        cuerpoTabla.innerHTML += `
+            <tr>
+                <td>${correlativo}</td>
+                <td>${i.codigo}</td>
+                <td>${i.nombre}</td>
+                <td class="fw-bold text-primary">${i.cantidad}</td>
+                <td>
+                    <button class="btn btn-pro btn-success btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#entradaModal${i.id}" <i class="fas fa-plus"></i></button>                   
+                    <button class="btn btn-pro btn-guardar btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#historialModal${i.id}"><i class="fas fa-history"></i></button>
+                    <button class="btn btn-pro btn-ver btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#mostrarModal${i.id}"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-pro btn-edit btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#editarModal${i.id}"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-pro btn-delete btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal${i.id}"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+    });
+}
+
+function renderPaginacion(data) {
+    divPaginacion.innerHTML = '';
+    if (data.num_pages <= 1) return;
+
+    let html = `<nav><ul class="pagination mb-0">`;
+    html += `<li class="page-item ${!data.has_previous ? 'disabled' : ''}">
+                <a class="page-link shadow-sm" href="#" onclick="event.preventDefault(); cargarInsumos('${inputBusqueda.value}', ${data.number - 1})">Anterior</a>
+             </li>`;
+    
+    html += `<li class="page-item active"><span class="page-link">Página ${data.number} de ${data.num_pages}</span></li>`;
+
+    html += `<li class="page-item ${!data.has_next ? 'disabled' : ''}">
+                <a class="page-link shadow-sm" href="#" onclick="event.preventDefault(); cargarInsumos('${inputBusqueda.value}', ${data.number + 1})">Siguiente</a>
+             </li>`;
+    html += `</ul></nav>`;
+    divPaginacion.innerHTML = html;
+}
+
+// Evento de búsqueda con delay para no saturar el servidor
+inputBusqueda.addEventListener('input', () => {
+    clearTimeout(timeoutBusqueda);
+    timeoutBusqueda = setTimeout(() => {
+        cargarInsumos(inputBusqueda.value.trim(), 1);
+    }, 350);
+});
+
+// Inicializar paginación al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    {% if insumos.paginator.num_pages > 1 %}
+    renderPaginacion({
+        num_pages: {{ insumos.paginator.num_pages }},
+        number: {{ insumos.number }},
+        has_previous: {{ insumos.has_previous|lower }},
+        has_next: {{ insumos.has_next|lower }}
+    });
+    {% endif %}
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,120 @@
+<!-- Modal Entrada de Stock -->
+<div class="modal fade" id="entradaModal{{ insumo.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0" 
+             style="border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+
+            <form method="POST" action="{% url 'entrada_insumo' insumo.id %}">
+                {% csrf_token %}
+
+                <!-- HEADER -->
+                <div class="modal-header border-0 d-flex justify-content-between align-items-center"
+                     style="background: linear-gradient(90deg, #0744ac, #11b5cb); padding: 1.5rem;">
+
+                    <h5 class="modal-title fw-bold text-white text-center w-100"
+                        style="letter-spacing: 1px;">
+                        <i class="fa-solid fa-plus-circle me-2"></i>
+                        ENTRADA DE STOCK
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white shadow-none"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <!-- BODY -->
+                <div class="modal-body p-4 bg-light">
+
+                    <!-- INFORMACION DEL INSUMO -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                                Código del Insumo
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="fa-solid fa-barcode text-primary"></i>
+                                </span>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="{{ insumo.codigo_ins }}"
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">
+                                Nombre del Insumo
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="fa-solid fa-box text-primary"></i>
+                                </span>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="{{ insumo.nombre_ins }}"
+                                       readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CANTIDAD -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">
+                            Cantidad a Ingresar
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="fa-solid fa-layer-group text-primary"></i>
+                            </span>
+
+                            <input type="number"
+                                   name="cantidad"
+                                   class="form-control form-control-lg"
+                                   min="1"
+                                   placeholder="Ingrese la cantidad"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- DESCRIPCION -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase">
+                            Descripción / Motivo
+                        </label>
+    
+                        <div class="input-group">
+                            <span class="input-group-text bg-white align-items-start pt-2">
+                                <i class="fa-solid fa-comment-dots text-primary"></i>
+                            </span>
+
+                            <textarea name="descripcion"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Compra a proveedor, devolución, ajuste de inventario, etc..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="d-flex justify-content-center mb-4">
+                    <button type="submit"
+                            class="btn btn-pro btn-square btn-square-lg btn-guardar">
+                            
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

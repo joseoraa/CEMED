@@ -1,0 +1,21 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="page-title text-center">AGREGAR IMAGENES</h1>
+    <div class="divider"></div>
+
+    <div class="card shadow-sm p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex justify-content-center gap-2 mt-3">
+            <a href="{% url 'admin_home' %}" class="btn btn-pro btn-ver btn-square btn-square-lg">
+                    <i class="bi bi-house-fill"></i> 
+                </a>
+                <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg"><i class="fa fa-save"></i></button>
+                <a href="{% url 'slider_listado' %}" class="btn btn-pro btn-ver btn-square btn-square-lg"><i class="bi bi-eye"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

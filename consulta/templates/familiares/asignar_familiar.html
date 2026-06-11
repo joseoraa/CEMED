@@ -1,0 +1,134 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- TITULO -->
+    <div class="text-center mb-4" style="margin-top:90px">
+        <h1 class="page-title">
+            ASIGNAR FAMILIAR A PACIENTE
+        </h1>
+        <div class="divider"></div>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-lg border-0"
+         style="border-radius: 20px; overflow: hidden;">
+
+        <div class="card-header py-3 text-center"
+             style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+
+            <h5 class="m-0 font-weight-bold text-white uppercase"
+                style="letter-spacing: 1px;">
+
+                <i class="fa-solid fa-people-arrows"></i>
+                ASIGNAR FAMILIAR EXISTENTE
+
+            </h5>
+        </div>
+
+        <div class="card-body mt-4">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="row">
+
+                    <!-- FAMILIAR -->
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Familiar existente
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-user-group text-primary"></i>
+                            </span>
+
+                            {{ form.familiar }}
+
+                        </div>
+
+                    </div>
+
+                    <!-- PACIENTE -->
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Paciente titular
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-user-injured text-primary"></i>
+                            </span>
+
+                            {{ form.paciente }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- BOTONES -->
+                <div class="text-center mt-4">
+
+                    <a href="{% url 'lista_carga_familiar_admin' %}"
+                       class="btn btn-pro btn-edit btn-square btn-square-lg mb-4">
+
+                        <i class="fa-solid fa-arrow-left me-2"></i>
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-pro btn-guardar btn-square btn-square-lg mb-4 ml-2">
+
+                        <i class="fas fa-link me-2"></i>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+
+        $('#id_familiar').select2({
+            placeholder: "Buscar familiar...",
+            allowClear: true,
+            width: '90%'
+        });
+
+        $('#id_paciente').select2({
+            placeholder: "Buscar paciente...",
+            allowClear: true,
+            width: '90%'
+        });
+
+    });
+</script>
+{% endblock %}

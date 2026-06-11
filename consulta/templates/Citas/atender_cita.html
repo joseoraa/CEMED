@@ -1,0 +1,236 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="text-center mb-4">
+    <h1 class="page-title">
+        <i class="fa-solid fa-stethoscope"></i> Detalle de la Cita
+    </h1>
+    <div class="divider"></div>
+</div>
+
+<!-- MENSAJES -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} text-center">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- INFO CITA -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
+    <div class="card-body">
+        <h5 class="fw-bold">
+            👤 {{ cita.paciente.nombre }} {{ cita.paciente.apellido }}
+        </h5>
+        <p class="mb-1"><strong>📅 Fecha:</strong> {{ cita.fecha }} {{ cita.hora }}</p>
+        <p>
+            <strong>Estado:</strong> 
+            <span class="badge bg-info">{{ cita.estado }}</span>
+        </p>
+    </div>
+</div>
+
+{% if bloqueada %}
+    <div class="alert alert-warning text-center">
+        ⚠️ Esta cita ya fue atendida.
+    </div>
+{% else %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="row" id="contenedor-insumos">
+
+        {% for form in formset %}
+
+
+        {% endfor %}
+
+    </div>
+
+
+
+
+
+    <!-- BOTÓN AGREGAR -->
+    <div class="text-center mt-3">
+        <button type="button" id="agregar" class="btn btn-pro btn-edit">
+            ➕ Agregar Insumo
+        </button>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="card shadow-sm border-0 mt-4" style="border-radius: 15px;">
+        <div class="card-body text-end">
+            <h5 class="fw-bold text-success">
+                💰 Total: $<span id="total">0.00</span>
+            </h5>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <button type="submit" class="btn btn-pro btn-ver btn-lg">
+            <i class="fa-solid fa-check"></i> Guardar Atención
+        </button>
+    </div>
+
+</form>
+
+{% endif %}
+
+
+<script>
+
+let totalForms = document.getElementById('id_form-TOTAL_FORMS');
+let contenedor = document.getElementById('contenedor-insumos');
+let btnAgregar = document.getElementById('agregar');
+
+btnAgregar.addEventListener('click', function () {
+
+    let formNum = parseInt(totalForms.value);
+
+    let newForm = `
+    <div class="col-md-4 insumo-card">
+
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+
+                <h6 class="fw-bold text-primary">💊 Insumo</h6>
+
+                <select name="form-${formNum}-insumo" class="form-control insumo-select">
+                    <option value="">Seleccione</option>
+
+                    {% for insumo in formset.forms.0.fields.insumo.queryset %}
+                        <option value="{{ insumo.id }}"
+                            data-stock="{{ insumo.cantidad_ins }}"
+                            data-precio="{{ insumo.precio_unitario_ins }}">
+                            {{ insumo.nombre_ins }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <input type="number"
+                    name="form-${formNum}-cantidad"
+                    class="form-control mt-2 cantidad-input"
+                    min="1"
+                    placeholder="Cantidad">
+
+                <small class="text-muted">
+                    Stock: <span class="stock-value">--</span>
+                </small>
+
+                <small class="text-danger stock-error"></small>
+
+            </div>
+        </div>
+    </div>
+    `;
+
+    contenedor.insertAdjacentHTML('beforeend', newForm);
+    totalForms.value = formNum + 1;
+
+    actualizar();
+});
+
+
+function actualizar() {
+
+    let total = 0;
+
+    let seleccionados = new Set();
+
+    document.querySelectorAll('.insumo-card').forEach(card => {
+
+        let select = card.querySelector('.insumo-select');
+        if (select && select.value) {
+            seleccionados.add(select.value);
+        }
+    });
+
+    document.querySelectorAll('.insumo-select option').forEach(opt => {
+        opt.disabled = false;
+    });
+
+    document.querySelectorAll('.insumo-select').forEach(select => {
+
+        let currentValue = select.value;
+
+        Array.from(select.options).forEach(opt => {
+
+            if (!opt.value) return;
+
+            if (seleccionados.has(opt.value) && opt.value !== currentValue) {
+                opt.disabled = true;
+            }
+        });
+    });
+
+    document.querySelectorAll('.insumo-card').forEach(card => {
+
+        let select = card.querySelector('.insumo-select');
+        let cantidad = card.querySelector('.cantidad-input');
+        let stockEl = card.querySelector('.stock-value');
+        let errorEl = card.querySelector('.stock-error');
+
+        if (!select || !select.value) {
+            if (stockEl) stockEl.textContent = "--";
+            if (errorEl) errorEl.textContent = "";
+            return;
+        }
+
+        let option = select.options[select.selectedIndex];
+
+        // =========================
+        // 🔥 FIX NAN (IMPORTANTE)
+        // =========================
+        let stock = parseFloat(option?.dataset.stock);
+        let precio = parseFloat(option?.dataset.precio);
+        let cant = parseFloat(cantidad?.value);
+
+        if (isNaN(stock)) stock = 0;
+        if (isNaN(precio)) precio = 0;
+        if (isNaN(cant)) cant = 0;
+
+        if (stockEl) stockEl.textContent = stock;
+
+        // VALIDACIÓN STOCK
+        if (cant > stock) {
+            cantidad.classList.add("is-invalid");
+            if (errorEl) errorEl.textContent = `⚠️ Solo hay ${stock} disponibles`;
+        } else {
+            cantidad.classList.remove("is-invalid");
+            if (errorEl) errorEl.textContent = "";
+        }
+
+        // TOTAL (SEGURO)
+        if (cant > 0) {
+            total += cant * precio;
+        }
+
+    });
+
+    // =========================
+    // CONSULTA MÉDICA (FIX)
+    // =========================
+    let consulta = parseFloat("{{ precio_consulta|default:'0' }}");
+
+    if (isNaN(consulta)) consulta = 0;
+
+    total += consulta;
+
+    let totalEl = document.getElementById('total');
+
+    if (totalEl) {
+        totalEl.textContent = total.toFixed(2);
+    }
+}
+
+document.addEventListener('input', actualizar);
+document.addEventListener('change', actualizar);
+
+</script>
+
+{% endblock %}

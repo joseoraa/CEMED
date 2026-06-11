@@ -1,0 +1,69 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card login-card p-4" style="width: 100%; max-width: 420px;">
+
+        <!-- TÍTULO -->
+        <div class="text-center mb-4">
+            <h1 class="login-title">INICIO DE SESIÓN</h1>
+            
+            <p class="text-muted">Ingrese su usuario y contraseña</p>
+            <div class="divider"></div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- USUARIO -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Usuario</label>
+                <div class="input-group">
+                    <span class="input-group-text text-primary">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+                    <input type="text"
+                           name="cedula"
+                           class="form-control"
+                           placeholder="Ingrese su cédula"
+                           required>
+                </div>
+            </div>
+
+            <!-- CONTRASEÑA -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-lock text-primary"></i>
+                    </span>
+                    <input type="password"
+                           name="password"
+                           class="form-control"
+                           placeholder="Ingrese su contraseña"
+                           required>
+                </div>
+            </div>
+
+            <div class="mt-3 text-center">
+
+                <button type="submit" class="btn btn-pro btn-ver btn-square btn-square-lg">
+                    <i class="fa-solid fa-right-to-bracket me-2 "></i>
+                </button>
+            </div>
+            <!-- REGISTRO -->
+            <div class="mt-3 text-center">
+                <a href="{% url 'registro_paciente' %}" class="text-decoration-none fw-semibold">
+                    ¿No tienes cuenta? Regístrate
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}

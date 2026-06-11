@@ -1,0 +1,282 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- TITULO -->
+    <div class="text-center mb-4">
+
+        <h2 class="fw-bold text-primary">
+
+            <i class="fa-solid fa-chart-line"></i>
+
+           INVENTARIO
+
+        </h2>
+
+        <p class="text-muted">
+
+            Control de entradas, salidas y gastos
+
+        </p>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-body">
+
+                    <h4 class="text-primary fw-bold text-center mb-4">
+
+                        <i class="fa-solid fa-arrow-down"></i>
+
+                        Entradas
+
+                    </h4>
+
+                    <canvas id="graficoEntradas"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SALIDAS -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-body">
+
+                    <h4 class="text-danger fw-bold text-center mb-4">
+
+                        <i class="fa-solid fa-arrow-up"></i>
+
+                        Salidas
+
+                    </h4>
+
+                    <canvas id="graficoSalidas"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="card shadow-lg border-0 rounded-4">
+
+        <div class="card-body">
+
+            <h4 class="fw-bold mb-4">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+                Historial de Movimientos
+
+            </h4>
+<div class="row text-center mb-4">
+
+    <div class="col-md-4 text-success fw-bold">
+        💰 Inversión: $ {{ total_entradas }}
+    </div>
+
+    <div class="col-md-4 text-danger fw-bold">
+        💸 Consumo: $ {{ total_salidas }}
+    </div>
+
+    <div class="col-md-4 text-primary fw-bold">
+        📊 Equipo:
+        $ {{ balance|floatformat:2 }}
+    </div>
+
+</div>
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Fecha</th>
+                            <th>Insumo</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Gasto</th>
+                            <th>Uso</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for h in historial %}
+
+                        <tr>
+
+                            <td>{{ h.fecha }}</td>
+
+                            <td>
+
+                                <strong>
+                                    {{ h.insumo }}
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                {% if h.tipo == 'ENTRADA' %}
+
+                                <span class="badge bg-primary">
+
+                                    Entrada
+
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Salida
+
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {{ h.cantidad }}
+
+                            </td>
+                            <td>
+
+                                {% if h.tipo == 'ENTRADA' %}
+
+                                    <strong class="text-success">
+                                        + $ {{ h.costo }}
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong class="text-danger">
+                                        - $ {{ h.costo }}
+                                    </strong>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {{ h.uso }}
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="6"
+                                class="text-center text-muted py-4">
+
+                                Aún no existen movimientos
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+// ENTRADAS
+new Chart(document.getElementById('graficoEntradas'), {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: {{ entradas_labels|safe }},
+
+        datasets: [{
+
+            data: {{ entradas_valores|safe }},
+
+            backgroundColor: [
+
+                '#0d6efd',
+                '#36a2eb',
+                '#4bc0c0',
+                '#5dade2',
+                '#85c1e9'
+
+            ]
+
+        }]
+
+    }
+
+});
+
+
+// SALIDAS
+new Chart(document.getElementById('graficoSalidas'), {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: {{ salidas_labels|safe }},
+
+        datasets: [{
+
+            data: {{ salidas_valores|safe }},
+
+            backgroundColor: [
+
+                '#dc3545',
+                '#ff6384',
+                '#e74c3c',
+                '#ec7063',
+                '#f1948a'
+
+            ]
+
+        }]
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

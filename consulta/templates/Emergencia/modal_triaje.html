@@ -1,0 +1,164 @@
+<form method="POST"
+      action="{% url 'triaje_modal' emergencia.id %}">
+
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
+    <div class="row">
+
+        <!-- TEMPERATURA -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Temperatura (°C)
+            </label>
+
+            {{ form.temperatura }}
+
+            <small class="text-success d-block">
+                Valor normal: 36°C - 37.5°C
+            </small>
+        </div>
+
+        <!-- TENSION -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Tensión Arterial
+            </label>
+
+            {{ form.tension_arterial }}
+
+            <small class="text-success d-block">
+                Valor normal: 90/60 - 120/80 mmHg
+            </small>
+        </div>
+
+        <!-- FRECUENCIA CARDIACA -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Frecuencia Cardíaca
+            </label>
+
+            {{ form.frecuencia_cardiaca }}
+
+            <small class="text-success d-block">
+                Valor normal: 60 - 100 lpm
+            </small>
+        </div>
+
+        <!-- FRECUENCIA RESPIRATORIA -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Frecuencia Respiratoria
+            </label>
+
+            {{ form.frecuencia_respiratoria }}
+
+            <small class="text-success d-block">
+                Valor normal: 12 - 20 rpm
+            </small>
+        </div>
+
+        <!-- SATURACION -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Saturación de Oxígeno
+            </label>
+
+            {{ form.saturacion_oxigeno }}
+
+            <small class="text-success d-block">
+                Valor normal: 95% - 100%
+            </small>
+        </div>
+
+        <!-- PESO -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Peso (Kg)
+            </label>
+
+            {{ form.peso }}
+
+            <small class="text-success d-block">
+                Registrar peso en kilogramos
+            </small>
+        </div>
+
+        <!-- PRIORIDAD -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">
+                Prioridad del Triaje
+            </label>
+
+            {{ form.prioridad }}
+
+            <small class="text-muted d-block">
+                Rojo, Naranja, Amarillo, Verde o Azul
+            </small>
+        </div>
+
+        <!-- OBSERVACION -->
+        <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">
+                Observación
+            </label>
+
+            {{ form.observacion }}
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- LEYENDA -->
+    <div class="alert alert-info">
+
+        <h5>
+            <i class="fa-solid fa-circle-info"></i>
+            Valores de Referencia
+        </h5>
+
+        <div class="row">
+
+            <div class="col-md-6">
+                <ul class="mb-0">
+                    <li><strong>Temperatura:</strong> 36°C - 37.5°C</li>
+                    <li><strong>Frecuencia Cardíaca:</strong> 60 - 100 lpm</li>
+                    <li><strong>Frecuencia Respiratoria:</strong> 12 - 20 rpm</li>
+                </ul>
+            </div>
+
+            <div class="col-md-6">
+                <ul class="mb-0">
+                    <li><strong>Saturación:</strong> 95% - 100%</li>
+                    <li><strong>Tensión:</strong> 90/60 - 120/80 mmHg</li>
+                    <li><strong>Peso:</strong> Según edad y contextura</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="text-end">
+
+        <button type="button"
+                class="btn btn-pro btn-square btn-square-lg btn-x"
+                data-bs-dismiss="modal">
+            X
+        </button>
+
+        <button type="submit"
+                class="btn btn-pro btn-square btn-square-lg btn-guardar">
+            <i class="fa-solid fa-floppy-disk"></i>
+        
+        </button>
+
+    </div>
+
+</form>

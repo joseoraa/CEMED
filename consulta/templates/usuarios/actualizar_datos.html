@@ -1,0 +1,47 @@
+{% extends "Inicio/base.html" %}
+{%load static%}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Actualizar Datos</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white fw-bold">
+                    Datos Personales
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="d-flex justify-content-center gap-2">
+                            {% if user.is_authenticated %}
+                                <a href="{% if user.rol == 'PACIENTE' %}{% url 'pacientes_home' %}
+                                        {% elif user.rol == 'ENFERMERA' %}{% url 'enfermera_home' %}
+                                        {% elif user.rol == 'DOCTOR' %}{% url 'doctor_home' %}
+                                        {% elif user.rol == 'ADMIN' %}{% url 'admin_home' %}
+                                        {% else %}{% url 'home' %}{% endif %}" 
+                                class="btn btn-pro btn-edit btn-square btn-square-lg mb-4">
+                                    <i class="fa-solid fa-house-user me-2"></i> 
+                                </a>
+                            {% endif %}
+
+                            <button type="submit" class="tn btn-pro btn-guardar btn-square btn-square-lg mb-4"><i class="fa-solid fa-floppy-disk"></i></button>
+                            
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

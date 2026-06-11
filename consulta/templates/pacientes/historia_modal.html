@@ -1,0 +1,93 @@
+
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <!-- 🔹 FORM HISTORIA -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-notes-medical me-2"></i> Antecedentes
+                        </label>
+                        {{ form.antecedentes }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-allergies me-2"></i> Alergias
+                        </label>
+                        {{ form.alergias }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-heart-pulse me-2"></i> Enfermedades Crónicas
+                        </label>
+                        {{ form.enfermedades_cronicas }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-stethoscope me-2"></i> Diagnóstico
+                        </label>
+                        {{ form.diagnostico }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-clipboard-list me-2"></i> Motivo de Consulta
+                        </label>
+                        {{ form.motivo_consulta }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="fa-solid fa-eye me-2"></i> Observaciones
+                        </label>
+                        {{ form.observaciones }}
+                    </div>
+
+                </div>
+                <hr>
+
+                <!-- 🔥 EXÁMENES MÉDICOS -->
+                <h5 class="text-success text-center">
+                    <i class="fa-solid fa-vials me-2"></i> Resultados de Examen
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-2">
+                        <input type="text" name="nombre_examen" class="form-control" placeholder="Nombre del examen">
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <input type="date" name="fecha_examen" class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-2">
+                        <input type="file" name="archivo" class="form-control">
+                    </div>
+
+                    <div class="col-md-12 mb-2">
+                        <textarea name="descripcion" class="form-control" placeholder="Descripción"></textarea>
+                    </div>
+
+                </div>
+
+                <!-- BOTÓN -->
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-pro btn-square btn-square-lg btn-guardar">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> 
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

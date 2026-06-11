@@ -1,0 +1,54 @@
+{% extends "Inicio/base.html" %} {% block content %}
+
+<div class="container mt-5">
+  <h2 class="text-center page-title">Mis Exámenes Médicos</h2>
+
+  <div class="divider"></div>
+
+  {% if historia %} {% if examenes %}
+
+  <div class="row">
+    {% for examen in examenes %}
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <strong>{{ examen.nombre_examen }}</strong>
+        </div>
+
+        <div class="card-body">
+          <p><strong>Fecha del examen:</strong> {{ examen.fecha_examen }}</p>
+
+          {% if examen.descripcion %}
+          <p><strong>Descripción:</strong> {{ examen.descripcion }}</p>
+          {% endif %}
+
+          <p><strong>Subido:</strong> {{ examen.fecha_subida }}</p>
+
+          <a
+            href="{{ examen.archivo.url }}"
+            class="btn btn-pro btn-square btn-square-md btn-guardar"
+            target="_blank"
+            ><i class="fa-regular fa-file-pdf"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+
+  <div class="alert alert-info text-center">
+    No tienes exámenes médicos registrados.
+  </div>
+
+  {% endif %} {% else %}
+
+  <div class="alert alert-warning text-center">
+    No tienes una historia médica asociada.
+  </div>
+
+  {% endif %}
+</div>
+
+{% endblock %}

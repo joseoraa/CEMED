@@ -1,0 +1,141 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center mt-5 mb-2" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="width: 800px; max-width: 800px; border-radius: 20px; border: none; margin-top:40px">
+
+
+        <div class="text-center mb-1">
+            <h1 class="login-title">REGISTRO DE CUENTA</h1>
+            <p class="text-muted mt-2">Crea tu cuenta en pocos pasos</p>
+            <div class="divider"></div>
+        </div>
+
+
+        <form method="post" class="needs-validation">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            {% comment %} <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="id_cedula" class="form-label small fw-bold text-uppercase text-muted">Cédula</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-id-card text-primary"></i></span>
+                        {{ form.cedula }}
+                    </div>
+                    <small class="text-danger">{{ form.cedula.errors }}</small>
+                </div> {% endcomment %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_cedula" class="form-label small fw-bold text-uppercase text-muted">Cédula</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fa-solid fa-id-card text-primary"></i>
+                            </span>
+                            
+                            <div style="width: 70px;">
+                                {{ form.tipo_cedula }}
+                            </div>
+                            
+                            {{ form.cedula }}
+                        </div>
+                        
+                        {% if form.tipo_cedula.errors %}
+                            <small class="text-danger d-block">{{ form.tipo_cedula.errors }}</small>
+                        {% endif %}
+                        <small class="text-danger d-block">{{ form.cedula.errors }}</small>
+                    </div>
+          
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_nombre" class="form-label small fw-bold text-uppercase text-muted">Nombre</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-user text-primary"></i></span>
+                        {{ form.nombre }}
+                    </div>
+                    <small class="text-danger">{{ form.nombre.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_apellido" class="form-label small fw-bold text-uppercase text-muted">Apellido</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-signature text-primary"></i></span>
+                        {{ form.apellido }}
+                    </div>
+                    <small class="text-danger">{{ form.apellido.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_sexo" class="form-label small fw-bold text-uppercase text-muted">Sexo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-venus-mars text-primary"></i></span>
+                        {{ form.sexo }}
+                    </div>
+                    <small class="text-danger">{{ form.sexo.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_fecha_nacimiento" class="form-label small fw-bold text-uppercase text-muted">Fecha de Nacimiento</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-calendar text-primary"></i></span>
+                        {{ form.fecha_nacimiento }}
+                    </div>
+                    <small class="text-danger">{{ form.fecha_nacimiento.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_telefono" class="form-label small fw-bold text-uppercase text-muted">Teléfono</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-phone text-primary"></i></span>
+                        {{ form.telefono }}
+                    </div>
+                    <small class="text-danger">{{ form.telefono.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_email" class="form-label small fw-bold text-uppercase text-muted">Correo Electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-envelope text-primary"></i></span>
+                        {{ form.email }}
+                    </div>
+                    <small class="text-danger">{{ form.email.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_password1" class="form-label small fw-bold text-uppercase text-muted">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-primary"></i></span>
+                        {{ form.password1 }}
+                    </div>
+                    <small class="text-danger">{{ form.password1.errors }}</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="id_password2" class="form-label small fw-bold text-uppercase text-muted">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-primary"></i></span>
+                        {{ form.password2 }}
+                    </div>
+                    <small class="text-danger">{{ form.password2.errors }}</small>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center mb-3 ">
+                <button class="btn btn-pro btn-ver btn-square btn-square-lg">
+                    <i class="fa-solid fa-user-plus me-2"></i>
+            </div>
+
+            <div class="mt-2 text-center">
+                <p class="mb-0 text-muted">¿Ya eres miembro? <a href="{% url 'login' %}" class="fw-bold text-decoration-none" style="color: #0744ac;">Inicia sesión aquí</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Estilo adicional para que los inputs de Django se vean bien con Bootstrap */
+
+</style>
+{% endblock %}

@@ -1,0 +1,478 @@
+{% extends 'Inicio/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4" style="margin-top: 100px; max-width: 1600px; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
+
+    {% if messages %}
+        <div class="row mb-3">
+            <div class="col-100">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0 align-items-center d-flex" role="alert">
+                        <i class="fa-solid fa-circle-info me-2 fs-5"></i>
+                        <div>{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pb-3 mb-4 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fa-solid fa-truck-medical me-1"></i> CÓDIGO DE EMERGENCIA</span>
+                <h2 class="text-dark fw-bold m-0 tracking-tight">#{{ emergencia.numero }}</h2>
+            </div>
+            <p class="text-secondary fs-5 mb-0 fw-semibold">
+                <i class="fa-solid fa-user text-muted me-1"></i> {{ emergencia.nombre_completo }} 
+                <span class="mx-2 text-muted">·</span> 
+                <i class="fa-solid fa-calendar-day text-muted me-1"></i> Edad: <span class="badge bg-light text-dark border">{{ emergencia.edad|default:"N/A" }} años</span>
+            </p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'lista_emergencias' %}" class="btn btn-pro btn-square btn-square-lg btn-x    ">
+                <i class="fa-solid fa-arrow-left me-2"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                <div class="card-header bg-primary bg-gradient text-white py-3">
+                    <h5 class="card-title mb-0 fw-semibold"><i class="fa-solid fa-id-card me-2"></i>Datos del Ingreso</h5>
+                </div>
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div class="mb-4">
+                        <div class="bg-light p-3 rounded-3 mb-3 border-start border-danger border-3">
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-1">Motivo de Consulta</label>
+                            <span class="fs-6 fw-medium text-dark">{{ emergencia.motivo_consulta }}</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block">Fecha Ingreso</label>
+                                <span class="text-dark fw-medium"><i class="fa-regular fa-clock me-1 text-muted"></i>{{ emergencia.fecha_ingreso|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block">Estado Actual</label>
+                                <span class="badge bg-opacity-10 bg-danger text-danger border border-danger-subtle fw-bold px-2.5 py-1.5 mt-1">{{ emergencia.get_estado_display }}</span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block">Responsable</label>
+                                <span class="text-dark fw-medium">{{ emergencia.responsable|default:"—" }}</span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold d-block">Tel. Responsable</label>
+                                <span class="text-dark fw-medium"><i class="fa-solid fa-phone me-1 text-muted"></i>{{ emergencia.telefono|default:"—" }}</span>
+                            </div>
+                        </div>
+
+                        {% if emergencia.observacion %}
+                            <div class="mt-3 pt-3 border-top">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Observación Inicial</label>
+                                <p class="text-secondary bg-light p-2.5 rounded border mb-0 small">{{ emergencia.observacion }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="border-top pt-4 bg-light p-3 rounded-3">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-arrow-rotate-right me-2 text-warning"></i>Actualizar Estado Clínico</h6>
+                        <form method="post" action="{% url 'cambiar_estado_emergencia' emergencia.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Nuevo Estado</label>
+                                <div class="django-select-custom">
+                                    {{ estado_form.estado }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Nota/Observación de Cambio</label>
+                                {{ estado_form.observacion }}
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 fw-semibold text-dark shadow-sm py-2">
+                                <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Cambio
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8 col-lg-7">
+            
+            <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold text-dark"><i class="fa fa-heartbeat text-danger me-2"></i>Signos Vitales y Triaje</h5>
+                    <button class="btn btn-pro btn-square btn-square-md btn-warning abrir-triaje-btn" data-id="{{ emergencia.id }}">
+                        {% if triaje %}<i class="fa-solid fa-user-pen me-1"></i>  {% else %}<i class="fa-solid fa-plus me-1"></i>  {% endif %}
+                    </button>
+                </div>
+                <div class="card-body bg-light-subtle p-4 border-top">
+                    {% if triaje %}
+                        <div class="row g-3">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Prioridad (Triage)</small>
+                                    <span class="fs-5 fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ triaje.get_prioridad_display }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Presión Arterial (TA)</small>
+                                    <span class="fs-5 fw-semibold text-dark"><i class="fa-solid fa-gauge me-1 text-muted"></i> {{ triaje.tension_arterial|default:"—" }} <small class="text-muted fs-6">mmHg</small></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Temperatura (Temp)</small>
+                                    <span class="fs-5 fw-semibold text-dark"><i class="fa-solid fa-temperature-half me-1 text-muted"></i> {{ triaje.temperatura|default:"—" }} <small class="text-muted fs-6">°C</small></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Frec. Cardíaca (FC)</small>
+                                    <span class="fs-5 fw-semibold text-dark"><i class="fa-solid fa-heart me-1 text-muted"></i> {{ triaje.frecuencia_cardiaca|default:"—" }} <small class="text-muted fs-6">lpm</small></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Frec. Respiratoria (FR)</small>
+                                    <span class="fs-5 fw-semibold text-dark"><i class="fa-solid fa-lungs me-1 text-muted"></i> {{ triaje.frecuencia_respiratoria|default:"—" }} <small class="text-muted fs-6">rpm</small></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="p-3 bg-white border rounded-3 shadow-2xs">
+                                    <small class="text-muted d-block fw-bold mb-1">Saturación (SpO2)</small>
+                                    <span class="fs-5 fw-semibold text-dark"><i class="fa-solid fa-droplet me-1 text-muted"></i> {{ triaje.saturacion_oxigeno|default:"—" }}<small class="text-muted fs-6">%</small></span>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 bg-white border border-dashed rounded-3">
+                            <i class="fa-solid fa-heart-crack text-muted fs-2 mb-2"></i>
+                            <p class="text-secondary mb-0 fw-medium">No se ha registrado triaje ni constantes vitales para este paciente.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if request.user.rol == 'DOCTOR' %}
+                <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="card-title mb-0 fw-semibold"><i class="fa-solid fa-stethoscope me-2 text-primary"></i>Evaluación Médica Inicial</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post" action="{% url 'evaluacion_emergencia' emergencia.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-secondary">Anamnesis / Enfermedad Actual</label>
+                                    {{ evaluacion_form.enfermedad_actual }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-secondary">Examen Físico Dirigido</label>
+                                    {{ evaluacion_form.examen_fisico }}
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-semibold text-secondary">Impresión Diagnóstica (CIE-10 / Descripción)</label>
+                                    {{ evaluacion_form.impresion_diagnostica }}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-square btn-pro btn-square-lg btn-guardar"><i class="fa-solid fa-notes-medical me-2"></i> </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="card-title mb-0 fw-bold text-dark"><i class="fa-solid fa-notes-medical text-success me-2"></i>Notas de Evolución y Seguimiento</h5>
+                    </div>
+                    <div class="card-body p-4 border-top bg-light-subtle">
+                        <form method="post" action="{% url 'evolucion_emergencia' emergencia.id %}" class="mb-4 bg-white p-3 border rounded-3 shadow-2xs">
+                            {% csrf_token %}
+                            <label class="form-label fw-semibold text-secondary mb-2">Añadir nueva nota de evolución</label>
+                            {{  evolucion_form.nota }}
+                            <div class="text-end mt-2">
+                                <button type="submit" class="btn btn-success px-4 fw-medium shadow-sm"><i class="fa-solid fa-plus me-1"></i>Agregar Nota</button>
+                            </div>
+                        </form>
+
+                        <div class="timeline" style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
+                            {% for evo in evoluciones %}
+                                <div class="bg-white rounded-3 p-3 mb-3 border border-start border-success border-3 shadow-2xs">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1.5">
+                                        <span class="fw-bold text-dark"><i class="fa-solid fa-user-doctor me-1 text-muted"></i>Dr. {{ evo.doctor.usuario.nombre }}</span>
+                                        <small class="badge bg-light text-secondary border fw-normal">{{ evo.fecha|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <p class="mb-0 text-secondary text-break" style="white-space: pre-wrap;">{{ evo.nota }}</p>
+                                </div>
+                            {% empty %}
+                                <div class="text-center py-4 bg-white border rounded-3">
+                                    <p class="text-muted mb-0">Sin notas de evolución clínica registradas en este ingreso.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            {% elif evaluacion %}
+                <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="card-title mb-0 fw-semibold"><i class="fa-solid fa-file-medical me-2"></i>Evaluación Médica </h5>
+                    </div>
+                    <div class="card-body p-4 bg-light-subtle">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="bg-white p-3 rounded border h-100">
+                                    <strong class="text-secondary d-block mb-1">Enfermedad Actual:</strong>
+                                    <p class="mb-0 text-dark">{{ evaluacion.enfermedad_actual }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-white p-3 rounded border h-100">
+                                    <strong class="text-secondary d-block mb-1">Examen Físico:</strong>
+                                    <p class="mb-0 text-dark">{{ evaluacion.examen_fisico }}</p>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="bg-white p-3 rounded border-start border-primary border-3 shadow-2xs">
+                                    <strong class="text-primary d-block mb-1">Diagnóstico:</strong>
+                                    <p class="mb-0 fw-semibold text-dark">{{ evaluacion.impresion_diagnostica }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark"><i class="fa-solid fa-pills text-info me-2"></i>Insumos Utilizados</h5>
+                </div>
+                <div class="card-body p-4 border-top d-flex flex-column justify-content-between">
+                    <form method="post" action="{% url 'insumo_emergencia' emergencia.id %}" class="row g-2 mb-4 bg-light p-2.5 rounded-3 border">
+                        {% csrf_token %}
+                        <div class="col-7 django-select-custom">{{ insumo_form.insumo }}</div>
+                        <div class="col-3">{{ insumo_form.cantidad }}</div>
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info w-100 h-100 text-white shadow-2xs" title="Agregar Insumo"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </form>
+                    
+                    <div style="max-height: 250px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush border rounded-3">
+                            {% for item in insumos_usados %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-2.5 px-3">
+                                    <span class="fw-medium text-dark"><i class="fa-solid fa-box text-muted me-2 small"></i>{{ item.insumo.nombre_ins }}</span>
+                                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill fw-bold px-3">x {{ item.cantidad }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted text-center py-4 bg-light-subtle">No hay insumos registrados para esta atención.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark"><i class="fa-solid fa-syringe text-primary me-2"></i>Procedimientos Médicos</h5>
+                </div>
+                <div class="card-body p-4 border-top d-flex flex-column justify-content-between">
+                    <form method="post" action="{% url 'procedimiento_emergencia' emergencia.id %}" class="mb-4 bg-light p-3 rounded-3 border">
+                        {% csrf_token %}
+                        <div class="mb-2">{{ procedimiento_form.nombre }}</div>
+                        <div class="mb-2">{{ procedimiento_form.descripcion }}</div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-medium mt-1 shadow-2xs"><i class="fa-solid fa-folder-plus me-1"></i>Registrar Procedimiento</button>
+                    </form>
+                    
+                    <div style="max-height: 220px; overflow-y: auto;">
+                        <div class="list-group list-group-flush border rounded-3">
+                            {% for proc in procedimientos %}
+                                <div class="list-group-item p-3 align-items-start transition-all">
+                                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0 fw-bold text-dark">{{ proc.nombre }}</h6>
+                                        <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ proc.fecha|date:"d/m H:i" }}</small>
+                                    </div>
+                                    {% if proc.descripcion %}
+                                        <p class="mb-0 text-secondary small bg-light p-2 rounded border-2xx mt-1">{{ proc.descripcion }}</p>
+                                    {% endif %}
+                                </div>
+                            {% empty %}
+                                <div class="text-muted text-center py-4 bg-light-subtle">No se han realizado intervenciones ni procedimientos.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark"><i class="fa-solid fa-vials text-success me-2"></i>Órdenes de Exámenes</h5>
+                </div>
+                <div class="card-body p-4 border-top d-flex flex-column justify-content-between">
+                    <form method="post" action="{% url 'solicitar_examen_emergencia' emergencia.id %}" class="row g-2 mb-4 bg-light p-2.5 rounded-3 border">
+                        {% csrf_token %}
+                        <div class="col-9">
+                            <select name="examen_id" class="form-select border-0 bg-white" required>
+                                <option value="" selected disabled>Seleccione examen...</option>
+                                {% for ex in examenes_disponibles %}
+                                    <option value="{{ ex.id }}">{{ ex.nom_exa }} — ${{ ex.precio_exa }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <button type="submit" class="btn btn-success w-100 h-100 shadow-2xs" title="Solicitar Examen"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </form>
+                    
+                    <div style="max-height: 250px; overflow-y: auto;">
+                        <div class="list-group list-group-flush border rounded-3">
+                            {% for sol in solicitudes %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-2.5 px-3">
+                                    <span class="text-dark fw-medium fs-6">
+                                        <i class="fa-solid fa-flask text-success me-2 small"></i>
+                                        {% if sol.realizar_examen.examen %}
+                                            {{ sol.realizar_examen.examen.nom_exa }}
+                                        {% else %}
+                                            {% with er=sol.realizar_examen.examenes_realizados.first %}
+                                                {{ er.examen.nom_exa|default:"Examen de Laboratorio" }}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </span>
+                                    <span class="badge bg-light text-dark border fw-normal">{{ sol.fecha|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            {% empty %}
+                                <div class="text-muted text-center py-4 bg-light-subtle">No se han emitido órdenes de laboratorio.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-xl-12 mt-4">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-header bg-secondary bg-gradient text-white py-3">
+                    <h5 class="card-title mb-0 fw-semibold"><i class="fa-solid fa-clock-rotate-left me-2"></i>MOVIMIENTOS</h5>
+                </div>
+                <div class="card-body p-3 bg-light-subtle" style="max-height: 240px; overflow-y: auto;">
+                    <div class="table-responsive">
+                        <table class="table table-hover bg-white rounded border overflow-hidden mb-0 align-middle small">
+                            <thead class="table-light text-uppercase text-secondary fw-bold">
+                                <tr>
+                                    <th style="width: 20%;" class="ps-3">Fecha y Hora</th>
+                                    <th style="width: 25%;">Operador / Usuario</th>
+                                    <th style="width: 55%;">Acción Ejecutada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in auditoria %}
+                                    <tr>
+                                        <td class="ps-3 fw-semibold text-dark">{{ reg.fecha|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge bg-light text-secondary border px-2.5 py-1.5"><i class="fa-solid fa-user-gear me-1"></i>{{ reg.usuario.nombre|default:"Sistema Automático" }}</span>
+                                        </td>
+                                        <td class="text-secondary fw-medium">{{ reg.accion }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">Sin registros de auditoría en este ingreso.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="triajeModal" tabindex="-1" aria-labelledby="triajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-warning py-3">
+                <h5 class="modal-title fw-bold text-dark" id="triajeModalLabel"><i class="fa-solid fa-heart-pulse me-2"></i>Gestión de Triaje Clínico</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light p-4" id="triajeModalBody">
+                </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Inyección de clases estéticas a los campos nativos de los formularios de Django */
+    .card-body form input[type="text"], 
+    .card-body form input[type="number"], 
+    .card-body form select, 
+    .card-body form textarea,
+    .django-select-custom select {
+        display: block;
+        width: 100%;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #dee2e6;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    .card-body form textarea {
+        height: 85px;
+        resize: vertical;
+    }
+    .card-body form input:focus, .card-body form select:focus, .card-body form textarea:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+    }
+    .shadow-2xs { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .transition-all { transition: all 0.2s ease-in-out; }
+    .list-group-item:hover { background-color: #f8f9fa; }
+    /* Ajustes finos de barra de scroll para secciones internas */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+</style>
+
+<script>
+document.querySelectorAll('.abrir-triaje-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        fetch(`/emergencias/${this.dataset.id}/triaje/`)
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('triajeModalBody').innerHTML = html;
+                
+                // Intentar añadir clases bootstrap a los inputs cargados dinámicamente en el modal si existen
+                document.querySelectorAll('#triajeModalBody input, #triajeModalBody select, #triajeModalBody textarea').forEach(el => {
+                    el.classList.add('form-control');
+                });
+
+                new bootstrap.Modal(document.getElementById('triajeModal')).show();
+            });
+    });
+});
+</script>
+{% endblock %}

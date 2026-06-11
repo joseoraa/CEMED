@@ -1,0 +1,254 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="container mt-4">
+
+    <!-- ========================= -->
+    <!-- FORMULARIO NUEVA ESPECIALIDAD -->
+    <!-- ========================= -->
+
+    <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; margin-top:90px">
+
+        <div class="card-header py-3 text-center mb-4"
+            style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+            <h5 class="m-0 font-weight-bold text-white uppercase" style="letter-spacing: 1px;">
+                <i class="fa-solid fa-user-doctor"></i> ESPECIALIDADES
+            </h5>
+        </div>
+
+        <div class="card-body p-4 p-md-3 bg-light">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- ERRORES -->
+                {% if form.nombre_espe.errors %}
+                <div class="text-danger small fw-bold">
+                    {% for error in form.nombre_espe.errors %}
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold text-muted small">NOMBRE DE LA ESPECIALIDAD</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fa-solid fa-stethoscope text-primary"></i>
+                            </span>
+                            {{ form.nombre_espe }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="d-flex justify-content-center align-items-center mt-3 gap-3">
+
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'admin_home' %}" class="btn btn-pro btn-edit btn-square btn-square-lg mb-4">
+                        <i class="fa-solid fa-house-user"></i>
+                    </a>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg mb-4">
+                        <i class="fas fa-save"></i>
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- LISTADO DE ESPECIALIDADES -->
+    <!-- ========================= -->
+
+    <div class="mb-1 mt-2">
+        <input type="text" id="buscarEspecialidad"
+               class="form-control form-control-lg"
+               placeholder="🔍 Escriba Nombre de la Especialidad">
+    </div>
+
+    <div class="card shadow mt-2">
+        <div class="card-header bg-primary text-white">
+            <h6 class="m-0"><i class="fas fa-list"></i> LISTADO</h6>
+        </div>
+
+
+        <div class="card-body">
+            <table class="table table-hover text-center" id="tablaEspecialidad">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Especialidad</th> <!-- Corregido: Agregado encabezado -->
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in especialidades %}
+                    <tr class="fila-especialidad">
+                        <td>{{ forloop.counter0|add:especialidades.start_index }}</td> <!-- Ajuste para que el contador siga en la pag 2 -->
+                        <td>{{ e.nombre_espe }}</td>
+                        <td>
+                            <!-- Botones VER, EDITAR, ELIMINAR (Mantén tu código de botones igual) -->
+                            <button class="btn btn-pro btn-ver btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#verModal{{ e.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <!-- ... los demás botones ... -->
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No hay especialidades registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- CONTROLES DE PAGINACIÓN -->
+            <nav aria-label="Navegación de especialidades">
+                <ul class="pagination justify-content-center">
+                    {% if especialidades.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; Inicio</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ especialidades.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Página {{ especialidades.number }} de {{ especialidades.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if especialidades.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ especialidades.next_page_number }}">Siguiente</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ especialidades.paginator.num_pages }}">Final &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+
+
+
+
+
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========================= -->
+<!-- MODALES -->
+<!-- ========================= -->
+
+{% for e in especialidades %}
+
+<!-- VER -->
+<div class="modal fade" id="verModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5><i class="fas fa-eye"></i> Detalle</h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Especialidad:</strong> {{ e.nombre_espe }}</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDITAR -->
+<div class="modal fade" id="editarModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{% url 'editar_especialidad' e.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header bg-primary text-white">
+                    <h5><i class="fas fa-pen"></i> Editar</h5>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" name="nombre_espe" class="form-control"
+                        value="{{ e.nombre_espe }}">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ELIMINAR -->
+<div class="modal fade" id="eliminarModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{% url 'eliminar_especialidad' e.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header bg-danger text-white">
+                    <h5><i class="fas fa-trash"></i> Eliminar</h5>
+                </div>
+
+                <div class="modal-body text-center">
+                    ¿Eliminar <strong>{{ e.nombre_espe }}</strong>?
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<BR>
+<script>
+const buscarInput = document.getElementById('buscarEspecialidad');
+const tabla = document.getElementById('tablaEspecialidad').getElementsByTagName('tbody')[0];
+buscarInput.addEventListener('keyup', function() {
+    const filtro = this.value.toLowerCase();
+    for (let row of tabla.rows) {
+        let codigo = row.cells[1].textContent.toLowerCase();
+        let nombre = row.cells[2].textContent.toLowerCase();
+
+        if (codigo.includes(filtro) || nombre.includes(filtro)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+});
+</script>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,425 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <style>
+
+        @page {
+            size: letter;
+
+            margin-top: 0px;
+            margin-bottom: 60px;
+            margin-left: 30px;
+            margin-right: 30px;
+
+            @frame header_frame {
+                -pdf-frame-content: headerContent;
+                top: 0px;
+                margin-left: 30px;
+                margin-right: 30px;
+                height: 130px;   /* 🔥 más espacio real */
+            }
+
+            @frame content_frame {
+                top: 130px;
+                margin-left: 30px;
+                margin-right: 30px;
+                bottom: 60px;
+            }
+
+            @frame footer_frame {
+                -pdf-frame-content: footerContent;
+                bottom: 10px;
+                margin-left: 30px;
+                margin-right: 30px;
+                height: 20px;
+            }
+        }  
+        
+        body{
+            font-family: Helvetica;
+            font-size: 11px;
+            color: #2c2c2c;
+        }
+        .logo{
+            width: 80px;
+            height: 80px;
+        }
+        /* =========================
+           HEADER
+        ==========================*/
+
+        .header{
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo{
+            width: 90px;
+            height: 90px;
+            margin-bottom: 8px;
+        }
+
+        .titulo{
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+            margin: 0;
+
+        }
+
+        .subtitulo{
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        /* =========================
+           TABLA PRINCIPAL
+        ==========================*/
+
+        .tabla-doctores{
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 18px;
+        }
+
+        .doctor-card{
+            background: #ffffff;
+            border-radius: 12px;
+        }
+
+        .doctor-header{
+            background: #0d6efd;
+            color: white;
+        }
+
+        .doctor-header td{
+            padding: 12px;
+        }
+
+        .doctor-nombre{
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .doctor-especialidad{
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* INFO */
+
+        .doctor-info{
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .doctor-info table{
+            width: 100%;
+        }
+
+        .doctor-info td{
+            padding: 4px 0;
+            vertical-align: top;
+        }
+
+        .label{
+            width: 120px;
+            font-weight: bold;
+            color: #0d6efd;
+            font-size: 13px;
+        }
+
+        /* HORARIOS */
+
+        .horarios-box{
+            margin-top: 12px;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 10px;
+            min-height: 40px;   /* 🔥 fuerza altura mínima */
+        }
+        .horario-title{
+            font-size: 20px;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .horarios-table{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 20px;
+        }
+
+        .horarios-table th{
+            background: #ffffff;
+            color: #0d6efd;
+            padding: 8px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .horarios-table td{
+            padding: 7px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .sin-horario{
+            text-align: center;
+            color: #777;
+            font-size: 11px;
+        }
+        /* FOOTER */
+
+        .footer{
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER REPETITIVO -->
+
+    <div id="headerContent">
+
+        <table width="100%">
+
+            <tr>
+
+                <td width="100%"
+                    style="text-align:center;">
+
+                    <div class="titulo">
+
+                        CEMED Dr JR. ORAA
+
+                    </div>
+
+                    <div class="subtitulo">
+
+                        Listado de Doctores y Horarios
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+    <!-- TABLA -->
+
+    <table class="tabla-doctores">
+
+        {% for doctor in doctores %}
+
+        <tr>
+
+            <td style="padding-bottom:18px; page-break-inside: avoid;">
+
+                <table class="doctor-card" width="100%">
+
+                    <!-- HEADER CARD -->
+
+                    <tr class="doctor-header">
+
+                        <td>
+
+                            <div class="doctor-nombre">
+
+                                Dr. {{ doctor.usuario.nombre }}
+                                {{ doctor.usuario.apellido }}
+
+                            </div>
+
+                            <div class="doctor-especialidad">
+
+                                {{ doctor.especialidad.nombre_espe }}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- BODY -->
+
+                    <tr>
+
+                        <td class="doctor-info">
+
+                            <!-- INFO -->
+
+                            <table>
+
+                                <tr>
+
+                                    <td class="label">
+                                        Cédula:
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.usuario.tipo_cedula }}
+                                        {{ doctor.usuario.cedula }}
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <td class="label">
+                                        Teléfono:
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.usuario.telefono|default:"No registrado" }}
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <td class="label">
+                                        Correo:
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.usuario.email }}
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <td class="label">
+                                        Consulta:
+                                    </td>
+
+                                    <td>
+                                        $ {{ doctor.precio_consulta }}
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                            <!-- HORARIOS -->
+
+                            <div class="horarios-box">
+
+                                <div class="horario-title">
+
+                                    Horarios de Atención
+
+                                </div>
+
+                                <table class="horarios-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>Día</th>
+                                            <th>Hora Inicio</th>
+                                            <th>Hora Fin</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        {% for h in doctor.horarios.all %}
+
+                                        
+                                        <tr>
+
+                                            <td>
+                                                {{ h.dia|title }}
+                                            </td>
+
+                                            <td>
+                                                {{ h.hora_inicio|time:"h:i A" }}
+                                            </td>
+
+                                            <td>
+                                                {{ h.hora_fin|time:"h:i A" }}
+                                            </td>
+
+                                        </tr>
+
+
+                                        {% empty %}
+
+                                        <tr>
+
+                                            <td colspan="3"
+                                                class="sin-horario"style="padding:12px;">
+
+                                                Sin horarios registrados
+
+                                            </td>
+
+                                        </tr>
+
+                                        {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <!-- FOOTER CON PAGINACIÓN -->
+
+<!-- FOOTER CON PAGINACIÓN -->
+
+<div id="footerContent">
+
+    <div class="footer">
+
+        Documento generado automáticamente por el sistema CEMED
+        |
+
+        Página
+        <pdf:pagenumber />
+
+        de
+
+        <pdf:pagecount />
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

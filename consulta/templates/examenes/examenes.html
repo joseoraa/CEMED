@@ -1,0 +1,257 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="container mt-4">
+
+    <!-- TÍTULO -->
+
+    <!-- ========================= -->
+    <!-- FORMULARIO NUEVO EXAMEN -->
+    <!-- ========================= -->
+
+<div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; margin-top:90px">
+    <div class="card-header py-3 text-center mb-4" style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+        <h5 class="m-0 font-weight-bold text-white uppercase" style="letter-spacing: 1px;">
+           <i class="fa-solid fa-vial-circle-check"></i> EXAMENES MEDICOS
+        </h5>
+    </div>
+        <div class="card-body p-4 p-md-3 bg-light">
+        <form method="POST" class="needs-validation">
+            {% csrf_token %}
+            {% if form.codigo_exa.errors %}
+                <div class="text-danger small fw-bold">
+                    {% for error in form.codigo_exa.errors %}
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label fw-bold text-muted small ">CÓDIGO</label>
+                    <div class="input-group ">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-barcode text-primary"></i></span>
+                        {{ form.codigo_exa }}
+                    </div>
+                </div>
+
+                <div class="col-md-8 mb-2">
+                    <label class="form-label fw-bold text-muted small">NOMBRE DEL EXAMEN</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-file-medical text-primary"></i></span>
+                        {{ form.nom_exa }}
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-2 ">
+                    <label class="form-label fw-bold text-muted small">TIPO DE EXAMEN</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-file-invoice-dollar text-primary"></i></span>
+                        {{ form.tipo_exa }}
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label fw-bold text-muted small">PRECIO ($)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-dollar-sign text-primary"></i></span>
+                        {{ form.precio_exa }}
+                    </div>
+                </div>
+
+                <div class="col-12 mb-2">
+                    <label class="form-label fw-bold text-muted small">CARACTERÍSTICAS / INDICACIONES</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-align-left text-primary"></i></span>
+                        {{ form.caracteristica_exa }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center mt-3 gap-3">
+    
+                
+                {% if user.is_authenticated %}
+                    <a href="{% if user.rol == 'PACIENTE' %}{% url 'pacientes_home' %}
+                            {% elif user.rol == 'ENFERMERA' %}{% url 'enfermera_home' %}
+                            {% elif user.rol == 'DOCTOR' %}{% url 'doctor_home' %}
+                            {% elif user.rol == 'ADMIN' %}{% url 'admin_home' %}
+                            {% else %}{% url 'home' %}{% endif %}" 
+                    class="btn btn-pro btn-edit btn-square btn-square-lg mb-4">
+                        <i class="fa-solid fa-house-user me-2"></i> 
+                    </a>
+                {% endif %}
+
+                <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg mb-4">
+                    <i class="fas fa-save me-2"></i>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+    <!-- ========================= -->
+    <!-- LISTADO DE EXÁMENES -->
+    <!-- ========================= -->
+
+
+<!-- ======================================= -->
+<!-- MODALES (FUERA DEL GRID) -->
+<!-- ======================================= -->
+
+{% for e in examenes %}
+
+<!-- ================= MODAL VER ================= -->
+<div class="modal fade" id="verModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Detalle del Examen
+                </h5>
+               
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Código:</strong> {{ e.codigo_exa }}</p>
+                <p><strong>Nombre:</strong> {{ e.nom_exa }}</p>
+                <p><strong>Tipo:</strong> {{ e.tipo_exa }}</p>
+                <p><strong>Precio:</strong> ${{ e.precio_exa }}</p>
+                <p><strong>Características:</strong>
+                    {{ e.caracteristica_exa|default:"No especificadas" }}
+                </p>
+            </div>
+
+            <div class="modal-footer d-flex justify-content-center mt-3">
+                <button class="btn btn-pro btn-x btn-square btn-square-lg" data-bs-dismiss="modal"> <i class="fas fa-x me-2"></i>
+                    
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL EDITAR ================= -->
+<div class="modal fade" id="editarModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{% url 'editar_examen' e.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-pen me-2"></i>Editar Examen
+                    </h5>
+                </div>
+
+                    {% if form.codigo_exa.errors %}
+                        <div class="text-danger small fw-bold">
+                            {% for error in form.codigo_exa.errors %}
+                                <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                <div class="modal-body">
+
+                    {% with form_editar as f %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Código</label>
+                        <input type="text" name="codigo_exa"
+                               class="form-control"
+                               value="{{ e.codigo_exa }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre</label>
+                        <input type="text" name="nom_exa"
+                               class="form-control"
+                               value="{{ e.nom_exa }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo</label>
+                        {{ f.tipo_exa }}
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                var select = document.querySelector('#editarModal{{ e.id }} select[name="tipo_exa"]');
+                                if (select) {
+                                    select.value = "{{ e.tipo_exa }}";
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Características</label>
+                        <textarea name="caracteristica_exa"
+                                  class="form-control"
+                                  rows="3">{{ e.caracteristica_exa }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Precio</label>
+                        <input type="number" step="0.01" min="0"
+                               name="precio_exa"
+                               class="form-control"
+                               value="{{ e.precio_exa }}">
+                    </div>
+
+                    {% endwith %}
+
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center mt-3">
+                    <button class="btn btn-pro btn-x btn-square btn-square-lg" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i>
+                        
+                    </button>
+                    <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg"><i class="fas fa-save me-2"></i>
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL ELIMINAR ================= -->
+<div class="modal fade" id="eliminarModal{{ e.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="{% url 'eliminar_examen' e.id %}">
+                {% csrf_token %}
+
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar Examen
+                    </h5>
+                </div>
+
+                <div class="modal-body text-center">
+                    ¿Seguro que deseas eliminar el examen
+                    <strong>{{ e.nom_exa }}</strong>?
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center mt-3">
+                    <button class="btn btn-pro btn-x btn-square btn-square-lg" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i></button>
+                    <button type="submit" class="btn btn-pro btn-delete btn-square btn-square-lg"><i class="fas fa-trash me-2"></i></button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}

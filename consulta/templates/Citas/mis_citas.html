@@ -1,0 +1,109 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container-fluid px-4 mt-4">
+
+    <div class="text-center mb-4">
+        <h1 class="page-title"> CITAS MÉDICAS</h1>
+        <div class="divider"></div>
+    </div>
+
+    <div class="mb-3 text-end">
+        <a href="{% url 'solicitar_cita' %}" class="btn btn-ver btn-pro btn-square btn-square-lg rounded-pill px-4">
+            <i class="fas fa-calendar-plus me-1"></i> 
+        </a>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="bg-medical-blue text-white">
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th>Cancelar Cita</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td>
+                                {% if cita.paciente %}
+                                    {{ cita.paciente.nombre }} {{ cita.paciente.apellido }}
+                                    <span class="badge bg-primary">Titular</span>
+                                {% elif cita.familiar %}
+                                    {{ cita.familiar.nombre }} {{ cita.familiar.apellido }}
+                                    <span class="badge bg-info text-dark">
+                                        {{ cita.familiar.parentesco }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>Dr. {{ cita.doctor.usuario.nombre }} {{ cita.doctor.usuario.apellido }}</td>
+                            <td>{{ cita.doctor.especialidad|default:"N/A" }}</td>
+                            <td>{{ cita.fecha }}</td>
+                            <td>{{ cita.hora }}</td>
+                            <td>{{ cita.motivo|default:"Sin motivo" }}</td>
+                            <td>
+                                {% if cita.estado == "PENDIENTE" %}
+                                    <span class="text-warning">Pendiente</span>
+                                {% elif cita.estado == "CONFIRMADA" %}
+                                    <span class="text-primary">Confirmada</span>
+                                {% elif cita.estado == "ATENDIDA" %}
+                                    <span class="text-success">Atendida</span>
+                                {% elif cita.estado == "CANCELADA" %}
+                                    <span class="text-danger">Cancelada</span>
+                                {% else %}
+                                    <span class="text-secondary">{{ cita.estado }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.estado == "NO_ASISTIO" %}
+                                    <!-- Acción para cuando NO ASISTIÓ -->
+                                    <a href="{% url 'solicitar_cita' %}" class="btn btn-pro btn-square btn-square-sm btn-guardar">
+                                        <i class="fas fa-redo me-1"></i>
+                                    </a>
+
+                                {% elif cita.estado == "PENDIENTE" or cita.estado == "CONFIRMADA" %}
+                                    <!-- Acción para cancelar citas activas -->
+                                    <a href="{% url 'cancelar_mi_cita' cita.id %}" class="btn btn-pro btn-square btn-square-sm btn-delete rounded-pill"
+                                       onclick="return confirm('¿Seguro que deseas cancelar esta cita?')"> 
+                                        <i class="fas fa-times"></i>
+                                    </a>
+
+                                {% elif cita.estado == "ATENDIDA" %}
+                                    <!-- Acción para ver factura si ya fue atendido -->
+                                    <a href="{% url 'ver_factura' cita.id %}" class="btn btn-pro btn-ver btn-square btn-square-sm rounded-pill">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </a>
+
+                                {% else %}
+                                    <!-- Estado Cancelada o cualquier otro -->
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No tienes citas registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

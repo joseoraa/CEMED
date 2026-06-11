@@ -1,0 +1,491 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid px-4" style="margin-top:90px;">
+
+    <!-- HEADER -->
+    <div class="card shadow-lg border-0 mb-4"
+         style="border-radius:20px; overflow:hidden;">
+
+        <!-- TITULO -->
+        <div class="card-header py-3 text-center"
+             style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+
+            <h4 class="m-0 font-weight-bold text-white"
+                style="letter-spacing:1px;">
+
+                <i class="fa-solid fa-people-roof"></i>
+                CARGA FAMILIAR PACIENTES
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <!-- BOTON -->
+            <div class="d-flex justify-content-end mb-4">
+
+                <a href="{% url 'crear_familiar_admin' %}"
+                   class="btn btn-pro btn-guardar">
+
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    AGREGAR FAMILIAR
+
+                </a>
+
+            </div>
+
+            <!-- BUSCADOR -->
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+
+                    <form method="GET">
+
+                        <div class="input-group shadow-sm">
+
+                            <span class="input-group-text bg-white border-0">
+
+                                <i class="fa-solid fa-magnifying-glass text-primary"></i>
+
+                            </span>
+
+                            <input type="text"
+                                   name="buscar"
+                                   id="buscadorInput"
+                                   value="{{ buscar }}"
+                                   class="form-control border-0 shadow-none"
+                                   placeholder="Buscar paciente por nombre, cédula o correo...">
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- TABLA -->
+            <div class="table-responsive">
+
+                <table class="table align-middle table-hover">
+
+                    <thead style="background:#195CBD; color:white;">
+
+                        <tr class="text-center">
+
+                            <th>#</th>
+                            <th>Paciente Titular</th>
+                            <th>Cédula</th>
+                            <th>Correo</th>
+                            <th>Total Familiares</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for titular in page_obj %}
+
+                            <tr class="text-center">
+
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+
+                                <td class="fw-bold">
+
+                                    <i class="fa-solid fa-user-injured text-primary me-2"></i>
+
+                                    {{ titular.nombre }}
+                                    {{ titular.apellido }}
+
+                                </td>
+
+                                <td>
+                                    {{ titular.cedula }}
+                                </td>
+
+                                <td>
+                                    {{ titular.email }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-primary px-3 py-2">
+
+                                        {{ titular.total_familiares }}
+                                        Familiar{{ titular.total_familiares|pluralize }}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="d-flex justify-content-center gap-2">
+
+                                        <!-- VER -->
+                                        <button class="btn btn-pro btn-square btn-square-sm btn-ver"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#familiaModal{{ titular.id }}">
+
+                                            <i class="fa-solid fa-eye text-white"></i>
+
+                                        </button>
+
+                                        <!-- EDITAR -->
+                                        {% comment %} <a href="#"
+                                           class="btn btn-pro btn-square btn-square-sm btn-edit">
+
+                                            <i class="fa-solid fa-pen"></i>
+
+                                        </a>
+
+                                        <!-- ELIMINAR -->
+                                        <a href="#"
+                                           class="btn btn-pro btn-square btn-square-sm btn-delete">
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                        </a> {% endcomment %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            <!-- MODAL -->
+                            <div class="modal fade"
+                                 id="familiaModal{{ titular.id }}"
+                                 tabindex="-1">
+
+                                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+                                    <div class="modal-content border-0 shadow-lg"
+                                         style="border-radius:20px; overflow:hidden;">
+
+                                        <!-- HEADER MODAL -->
+                                        <div class="modal-header text-white"
+                                             style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+
+                                            <h5 class="modal-title">
+
+                                                <i class="fa-solid fa-users me-2"></i>
+
+                                                Familiares de
+                                                {{ titular.nombre }}
+                                                {{ titular.apellido }}
+
+                                            </h5>
+
+                                            <button type="button"
+                                                    class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal">
+
+                                            </button>
+
+                                        </div>
+
+                                        <!-- BODY MODAL -->
+                                        <div class="modal-body bg-light">
+
+                                            {% for familiar in titular.familiares.all %}
+
+                                                <div class="card border-0 shadow-sm mb-3"
+                                                     style="border-radius:15px;">
+
+                                                    <div class="card-body">
+
+                                                        <div class="row align-items-center">
+
+                                                            <!-- NOMBRE -->
+                                                            <div class="col-md-3">
+
+                                                                <h5 class="fw-bold text-primary mb-1">
+
+                                                                    <i class="fa-solid fa-user-group me-2"></i>
+
+                                                                    {{ familiar.nombre }}
+                                                                    {{ familiar.apellido }}
+
+                                                                </h5>
+
+                                                                <span class="badge bg-primary">
+
+                                                                    {{ familiar.get_parentesco_display }}
+
+                                                                </span>
+
+                                                            </div>
+
+                                                            <!-- SEXO -->
+                                                            <div class="col-md-2">
+
+                                                                <small class="text-muted d-block">
+                                                                    Sexo
+                                                                </small>
+
+                                                                <span class="fw-semibold">
+                                                                    {{ familiar.get_sexo_display }}
+                                                                </span>
+
+                                                            </div>
+
+                                                            <!-- FECHA -->
+                                                            <div class="col-md-2">
+
+                                                                <small class="text-muted d-block">
+                                                                    Nacimiento
+                                                                </small>
+
+                                                                <span class="fw-semibold">
+                                                                    {{ familiar.fecha_nacimiento }}
+                                                                </span>
+
+                                                            </div>
+
+                                                            <!-- TELEFONO -->
+                                                            <div class="col-md-2">
+
+                                                                <small class="text-muted d-block">
+                                                                    Teléfono
+                                                                </small>
+
+                                                                <span class="fw-semibold">
+
+                                                                    {% if familiar.telefono %}
+                                                                        {{ familiar.telefono }}
+                                                                    {% else %}
+                                                                        Sin teléfono
+                                                                    {% endif %}
+
+                                                                </span>
+
+                                                            </div>
+
+                                                            <!-- ESTADO -->
+                                                            <div class="col-md-2">
+
+                                                                <small class="text-muted d-block">
+                                                                    Estado
+                                                                </small>
+
+                                                                {% if familiar.activo %}
+
+                                                                    <span class="badge bg-success">
+                                                                        ACTIVO
+                                                                    </span>
+
+                                                                {% else %}
+
+                                                                    <span class="badge bg-danger">
+                                                                        INACTIVO
+                                                                    </span>
+
+                                                                {% endif %}
+
+                                                            </div>
+
+                                                            <!-- BOTONES -->
+                                                            <div class="col-md-1 text-center">
+
+                                                                <a href="#"
+                                                                   class="btn btn-warning btn-sm rounded-circle mb-1">
+
+                                                                    <i class="fa-solid fa-pen"></i>
+
+                                                                </a>
+
+                                                                <a href="#"
+                                                                   class="btn btn-danger btn-sm rounded-circle">
+
+                                                                    <i class="fa-solid fa-trash"></i>
+
+                                                                </a>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            {% empty %}
+
+                                                <div class="text-center py-5">
+
+                                                    <i class="fa-solid fa-users-slash fa-3x text-muted mb-3"></i>
+
+                                                    <h5 class="text-muted">
+                                                        Este paciente no posee familiares registrados
+                                                    </h5>
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="6" class="text-center py-5">
+
+                                    <i class="fa-solid fa-users-slash fa-3x text-muted mb-3"></i>
+
+                                    <h5 class="text-muted">
+                                        No se encontraron pacientes
+                                    </h5>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- PAGINACION -->
+            <nav class="mt-4">
+
+                <ul class="pagination justify-content-center">
+
+                    <!-- ANTERIOR -->
+                    {% if page_obj.has_previous %}
+
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               href="?buscar={{ buscar }}&page={{ page_obj.previous_page_number }}">
+
+                                <i class="fa-solid fa-chevron-left"></i>
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                <i class="fa-solid fa-chevron-left"></i>
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+                    <!-- NUMEROS -->
+                    {% for num in page_obj.paginator.page_range %}
+
+                        {% if page_obj.number == num %}
+
+                            <li class="page-item active">
+
+                                <span class="page-link bg-primary border-primary">
+
+                                    {{ num }}
+
+                                </span>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item">
+
+                                <a class="page-link"
+                                   href="?buscar={{ buscar }}&page={{ num }}">
+
+                                    {{ num }}
+
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                    <!-- SIGUIENTE -->
+                    {% if page_obj.has_next %}
+
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               href="?buscar={{ buscar }}&page={{ page_obj.next_page_number }}">
+
+                                <i class="fa-solid fa-chevron-right"></i>
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                <i class="fa-solid fa-chevron-right"></i>
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BUSQUEDA EN TIEMPO REAL -->
+<script>
+
+    const buscador = document.getElementById('buscadorInput');
+
+    buscador.addEventListener('keyup', function() {
+
+        clearTimeout(this.delay);
+
+        this.delay = setTimeout(() => {
+
+            this.form.submit();
+
+        }, 500);
+
+    });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}

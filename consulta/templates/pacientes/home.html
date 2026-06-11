@@ -1,0 +1,307 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<!-- Estilos personalizados para darle el toque Premium -->
+<style>
+    .kpi-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    .btn-quick {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .btn-quick:hover {
+        transform: translateX(3px);
+    }
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container-fluid px-4" style="margin-top:100px; max-width: 1400px;">
+
+    <!-- HEADER DE BIENVENIDA -->
+    <div class="d-flex align-items-center mb-4 p-4 bg-white rounded-4 shadow-sm border-start border-primary border-4">
+        <div class="me-3 fs-1">👋</div>
+        <div>
+            <h2 class="fw-bold text-dark mb-1">¡Hola, {{ request.user.nombre }}!</h2>
+
+        </div>
+    </div>
+
+    <!-- =========================
+         KPI CARDS (Estadísticas)
+    ========================== -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card shadow-sm border-0 rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Citas Totales</h6>
+                        <h2 class="fw-extrabold text-primary mb-0">{{ total_citas }}</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3">
+                        <i class="fa-solid fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card shadow-sm border-0 rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Pendientes</h6>
+                        <h2 class="fw-extrabold text-warning mb-0">{{ citas_pendientes }}</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3">
+                        <i class="fa-solid fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card shadow-sm border-0 rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Familiares</h6>
+                        <h2 class="fw-extrabold text-success mb-0">{{ total_familiares }}</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3">
+                        <i class="fa-solid fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card shadow-sm border-0 rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Exámenes</h6>
+                        <h2 class="fw-extrabold text-danger mb-0">{{ total_examenes }}</h2>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-3">
+                        <i class="fa-solid fa-flask fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <div class="row g-4 mb-5">
+
+        <!-- PERFIL -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-user fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-dark">Mis Datos Personales</h5>
+                    </div>
+                    <hr class="text-muted opacity-25">
+                    <div class="vstack gap-3 mt-3">
+                        <div>
+                            <small class="text-muted d-block">Cédula / Identificación</small>
+                            <span class="fw-semibold text-dark">{{ request.user.cedula }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Nombre Completo</small>
+                            <span class="fw-semibold text-dark">{{ request.user.nombre }} {{ request.user.apellido }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Correo Electrónico</small>
+                            <span class="fw-semibold text-dark">{{ request.user.email }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Teléfono de Contacto</small>
+                            <span class="fw-semibold text-dark">{{ request.user.telefono|default:"No registrado" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRÓXIMA CITA -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-calendar-day fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-dark">Próxima Cita</h5>
+                    </div>
+                    <hr class="text-muted opacity-25">
+                    
+                    {% if proxima_cita %}
+                        <div class="bg-light p-3 rounded-3 mb-3 border-start border-success border-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <small class="text-muted d-block"><i class="fa-regular fa-calendar me-1"></i> Fecha</small>
+                                    <span class="fw-bold text-dark">{{ proxima_cita.fecha }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block"><i class="fa-regular fa-clock me-1"></i> Hora</small>
+                                    <span class="fw-bold text-dark">{{ proxima_cita.hora }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="vstack gap-2">
+                            <div>
+                                <small class="text-muted d-block">Médico Tratante</small>
+                                <span class="fw-semibold text-dark"><i class="fa-solid fa-user-md me-1 text-secondary"></i> {{ proxima_cita.doctor }}</span>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Estado</small>
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mt-1 fw-bold">
+                                    {{ proxima_cita.estado }}
+                                </span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2370/2370264.png" alt="No citas" style="width: 60px; opacity: 0.3;" class="mb-3">
+                            <p class="text-muted mb-0">No tienes citas médicas programadas por el momento.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCESOS RÁPIDOS -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-bolt fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0 text-dark">Accesos Rápidos</h5>
+                    </div>
+                    <hr class="text-muted opacity-25">
+                    
+                    <div class="d-grid gap-3 mt-3">
+                        <a href="{% url 'mis_citas' %}" class="btn btn-outline-primary btn-quick p-2.5 text-start d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-calendar-days me-2"></i> Mis Citas</span>
+                            <i class="fa-solid fa-chevron-right small opacity-50"></i>
+                        </a>
+
+                        <a href="{% url 'mis_familiares' %}" class="btn btn-outline-success btn-quick p-2.5 text-start d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-user-group me-2"></i> Gestión de Familiares</span>
+                            <i class="fa-solid fa-chevron-right small opacity-50"></i>
+                        </a>
+
+                        <a href="#" class="btn btn-outline-danger btn-quick p-2.5 text-start d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-vial me-2"></i> Historial de Exámenes</span>
+                            <i class="fa-solid fa-chevron-right small opacity-50"></i>
+                        </a>
+
+                        <a href="{% url 'actualizar_datos' %}" class="btn btn-outline-secondary btn-quick p-2.5 text-start d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-user-gear me-2"></i> Actualizar mi Perfil</span>
+                            <i class="fa-solid fa-chevron-right small opacity-50"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+         ÚLTIMOS EXÁMENES
+    ========================== -->
+<!-- =========================
+     ÚLTIMOS EXÁMENES MODIFICADO
+========================== -->
+    <div class="card shadow-sm border-0 rounded-4 bg-white mb-5">
+        <div class="card-header bg-white border-0 p-4 pt-4 pb-0">
+            <h4 class="fw-bold text-dark mb-0">
+                <i class="fa-solid fa-file-medical text-danger me-2"></i>Últimos Recibos de Exámenes 
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            {% if examenes_recientes %}
+            <div class="table-responsive shadow-sm border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase fs-7 text-muted">
+                        <tr>
+                            <th class="ps-4 py-3">Paciente</th>
+                            <th class="py-3">Doctor</th>
+                            <th class="py-3">Costo</th>
+                            <th class="pe-4 py-3 text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for ex in examenes_recientes %}
+                        <tr>
+                            <!-- PACIENTE -->
+                            <td class="ps-4 fw-semibold">
+                                {% if ex.familiar %}
+                                    <span class="text-dark">
+                                        <i class="fa-solid fa-user-astronaut me-1 text-success"></i>
+                                        {{ ex.familiar.nombre }} {{ ex.familiar.apellido }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-dark">
+                                        <i class="fa-solid fa-user-circle me-1 text-primary"></i>
+                                        {{ ex.paciente.nombre }} {{ ex.paciente.apellido }}
+                                    </span>
+                                {% endif %}
+                            </td>
+
+
+                            <!-- DOCTOR -->
+                            <td class="text-muted">
+                                <i class="fa-solid fa-user-md text-muted me-1"></i>
+
+
+                                {% if ex.doctor and ex.doctor.usuario %}
+                                    Dr. {{ ex.doctor.usuario.get_full_name|default:ex.doctor.usuario.nombre }}
+                                {% else %}
+                                    <span class="text-muted">No asignado</span>
+                                {% endif %}
+
+                            </td>
+
+                            <!-- COSTO -->
+                            <td class="fw-bold text-dark">
+                                ${{ ex.total }}
+                            </td>
+
+                            <!-- RECIBO -->
+                            <td class="pe-4 text-end">
+                                <a href="{% url 'detalle_examen' ex.id %}" class="btn btn-pro btn-square btn-square-sm btn-ver" title="Ver detalle">
+                                    <i class="fa-solid fa-file-pdf me-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-folder-open text-muted opacity-50 fa-3x mb-3"></i>
+                    <p class="text-muted mb-0">No posees exámenes cargados en tu historial actualmente.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

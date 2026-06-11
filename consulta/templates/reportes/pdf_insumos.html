@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@page { size: letter; margin: 35px 25px 80px 25px;
+    @frame footer { -pdf-frame-content: footerContent; left: 25px; width: 565px; bottom: 10px; height: 35px; }
+}
+body { font-family: Arial; font-size: 10px; color: #1e293b; }
+.header { background: #198754; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 14px; }
+.subtitle { text-align: center; margin: 12px 0; font-size: 12px; color: #198754; font-weight: bold; }
+.resumen { text-align: center; margin-bottom: 15px; font-size: 11px; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #198754; color: white; padding: 5px; font-size: 9px; border: 1px solid #000; }
+td { padding: 4px; font-size: 9px; border: 1px solid #ddd; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">CEMED JR ORAA — CONSUMO DE INSUMOS</div>
+<div class="subtitle">{{ titulo }}</div>
+<div class="resumen"><strong>Costo total del periodo: Bs. {{ total_general|floatformat:2 }}</strong></div>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Código</th>
+            <th>Insumo</th>
+            <th>Presentación</th>
+            <th>Cantidad</th>
+            <th>P. Unit.</th>
+            <th>Costo total</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for f in filas %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ f.insumo__codigo_ins }}</td>
+            <td style="text-align:left;">{{ f.insumo__nombre_ins }}</td>
+            <td>{{ f.insumo__presentacion_ins }}</td>
+            <td><strong>{{ f.total_cantidad }}</strong></td>
+            <td>Bs. {{ f.insumo__precio_unitario_ins|floatformat:2 }}</td>
+            <td><strong>Bs. {{ f.total_costo|floatformat:2 }}</strong></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7">Sin consumo registrado.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div id="footerContent">
+    <table width="100%" style="font-size:8px;border-top:1px solid #000;">
+        <tr>
+            <td>Generado: {{ fecha_generacion|date:"d/m/Y H:i" }}</td>
+            <td align="center">CEMED JR ORAA</td>
+            <td align="right">Pág. <pdf:pagenumber /> / <pdf:pagecount /></td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

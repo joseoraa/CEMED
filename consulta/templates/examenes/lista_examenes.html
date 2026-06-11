@@ -1,0 +1,119 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center mb-4">
+
+        <h1 class="page-title"><i class="fa-solid fa-vial-circle-check "></i>  LISTADO DE SERVICIOS MÉDICOS</h1>
+
+        <div class="divider"></div>
+
+    </div>
+
+
+
+    <form method="GET" id="formBuscar">
+        <input
+            type="text"
+            name="buscar"
+            value="{{ buscar }}"
+            id="buscarExamen"
+            class="form-control form-control-lg"
+            placeholder="🔍 Código o Nombre">
+    </form>
+    </br>
+<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaExamenes">
+            <thead class="bg-medical-blue text-white">
+                <tr>
+                    <th>#</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in examen %}
+                <tr>
+                    <td>{{ forloop.counter0|add:examen.start_index }}</td>
+                    <td>{{ e.codigo_exa }}</td>
+                    <td>{{ e.nom_exa }}</td>
+                    <td>{{ e.tipo_exa }}</td>
+                    <td class="fw-bold text-success">${{ e.precio_exa }}</td>
+                    <td>
+                        <!-- Botones de acciones -->
+                        <button class="btn btn-pro btn-ver btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#verModal{{e.id}}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-pro btn-edit btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#editarModal{{e.id}}">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn btn-pro btn-delete btn-square btn-square-sm" data-bs-toggle="modal" data-bs-target="#eliminarModal{{e.id}}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+<div class="card-footer bg-white border-top-0">
+    <nav aria-label="Paginación de exámenes">
+        <ul class="pagination justify-content-center m-0">
+            
+            <li class="page-item {% if not examen.has_previous %}disabled{% endif %}">
+                {% if examen.has_previous %}
+                    <a class="page-link"
+                    href="?buscar={{ buscar }}&page={{ examen.previous_page_number }}">
+                    Anterior
+                    </a>
+                {% else %}
+                    <span class="page-link">Anterior</span>
+                {% endif %}
+            </li>
+
+            <li class="page-item active">
+                <span class="page-link">Página {{ examen.number }} de {{ examen.paginator.num_pages }}</span>
+            </li>
+
+            <li class="page-item {% if not examen.has_next %}disabled{% endif %}">
+                {% if examen.has_next %}
+                    <a class="page-link"
+                    href="?buscar={{ buscar }}&page={{ examen.next_page_number }}">
+                    Siguiente
+                    </a>
+                {% else %}
+                    <span class="page-link">Siguiente</span>
+                {% endif %}
+            </li>
+
+        </ul>
+    </nav>
+</div>
+
+
+{% for e in examen %}
+    {% include "examenes/ver_examen.html" %}
+    {% include "examenes/editar_examen.html" %}
+    {% include "examenes/eliminar_examen.html" %}
+{% endfor %}
+
+
+
+
+<script>
+
+document.getElementById('buscarExamen').addEventListener('keyup', function() {
+    clearTimeout(window.timerBusqueda);
+
+    window.timerBusqueda = setTimeout(() => {
+        document.getElementById('formBuscar').submit();
+    }, 500);
+});
+
+</script>
+{% endblock %}

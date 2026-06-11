@@ -1,0 +1,189 @@
+{% extends "Inicio/base.html" %} {% load static %} {% block content %}
+
+<div class="container-fluid px-4 mt-4">
+  <!-- TÍTULO -->
+  <div class="text-center mb-4">
+    <h1 class="page-title">
+      <i class="fa-solid fa-user-doctor"></i>
+      Médicos Disponibles
+    </h1>
+
+    <div class="divider"></div>
+  </div>
+
+  <form method="GET" class="mb-4">
+    <input
+      type="text"
+      name="buscar"
+      value="{{ buscar }}"
+      class="form-control form-control-lg"
+      placeholder="🔍 Buscar doctor o especialidad"
+    />
+  </form>
+
+  <!-- TABLA -->
+  <div
+    class="card shadow-sm border-0"
+    style="border-radius: 15px; overflow: hidden"
+  >
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="tablaDoctores">
+        <thead class="bg-medical-blue text-white">
+          <tr>
+            <th>#</th>
+            <th>Doctor</th>
+            <th>Especialidad</th>
+            <th>Consulta</th>
+            <th>Días de Atención</th>
+            <th>Horario</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for d in doctores %}
+
+          <!-- SEPARADOR SUAVE -->
+          {% ifchanged d.especialidad.nombre_espe %}
+          <tr>
+            <td
+              colspan="6"
+              class="bg-light fw-bold text-primary small text-uppercase"
+            >
+              {{ d.especialidad.nombre_espe }}
+            </td>
+          </tr>
+          {% endifchanged %}
+
+          <tr class="fila-doctor">
+            <td>{{ forloop.counter0|add:doctores.start_index }}</td>
+
+            <td>
+              {% if d.imagen %}
+              <img
+                src="{{ d.imagen.url }}"
+                width="45"
+                height="45"
+                class="rounded-circle me-2"
+                style="object-fit: cover"
+              />
+              {% endif %} Dr. {{ d.usuario.nombre }} {{ d.usuario.apellido }}
+            </td>
+
+            <td>
+              <span class="text-primary fw-bold">
+                {{ d.especialidad.nombre_espe }}
+              </span>
+            </td>
+
+            <td>
+              <span class="text-success fw-bold">
+                $ {{ d.precio_consulta }}
+              </span>
+            </td>
+
+            <!-- DÍAS -->
+            <td>
+              {% for h in d.horarios.all %}
+
+              <div class="small">{{ h.get_dia_display }}</div>
+
+              {% empty %}
+
+              <span class="text-muted"> Sin horario </span>
+
+              {% endfor %}
+            </td>
+
+            <!-- HORAS -->
+            <td>
+              {% for h in d.horarios.all %}
+
+              <div class="small">
+                {{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}
+              </div>
+
+              {% endfor %}
+            </td>
+          </tr>
+
+          {% empty %}
+
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              No hay doctores registrados.
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white border-top-0">
+      <nav aria-label="Paginación de doctores">
+        <ul class="pagination justify-content-center m-0">
+          <li
+            class="page-item {% if not doctores.has_previous %}disabled{% endif %}"
+          >
+            {% if doctores.has_previous %}
+            <a
+              class="page-link"
+              href="?buscar={{ buscar }}&page={{ doctores.previous_page_number }}"
+            >
+              Anterior
+            </a>
+            {% else %}
+            <span class="page-link">Anterior</span>
+            {% endif %}
+          </li>
+
+          <li class="page-item active">
+            <span class="page-link"
+              >Página {{ doctores.number }} de
+              {{doctores.paginator.num_pages}}</span
+            >
+          </li>
+
+          <li
+            class="page-item {% if not doctores.has_next %}disabled{% endif %}"
+          >
+            {% if doctores.has_next %}
+            <a
+              class="page-link"
+              href="?buscar={{ buscar }}&page={{ doctores.next_page_number }}"
+            >
+              Siguiente
+            </a>
+            {% else %}
+            <span class="page-link">Siguiente</span>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const buscarInput = document.getElementById("buscarDoctor");
+
+        const filas = document.querySelectorAll(".fila-doctor");
+
+        buscarInput.addEventListener("keyup", function () {
+          const filtro = this.value.toLowerCase();
+
+          filas.forEach((fila) => {
+            const texto = fila.textContent.toLowerCase();
+
+            if (texto.includes(filtro)) {
+              fila.style.display = "";
+            } else {
+              fila.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
+
+    {% endblock %}
+  </div>
+</div>

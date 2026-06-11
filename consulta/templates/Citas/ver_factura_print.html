@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Factura #{{ factura.id }}</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', Arial;
+    background: #f5f7fb;
+    margin: 0;
+    padding: 20px;
+}
+
+.factura {
+    width: 210mm;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th {
+    background: #3498db;
+    color: white;
+    padding: 10px;
+}
+
+td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.total {
+    margin-top: 20px;
+    text-align: right;
+    font-size: 18px;
+}
+
+.total strong {
+    color: #27ae60;
+}
+
+.footer {
+    margin-top: 30px;
+    font-size: 12px;
+    text-align: center;
+    color: gray;
+}
+
+.btn-print {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-print button {
+    padding: 10px 20px;
+    border: none;
+    background: #2c3e50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="factura">
+
+<div class="header">
+    <h1>RECIBO MÉDICO</h1>
+    <p>Recibo #{{ factura.id }}</p>
+</div>
+
+<div class="info">
+    <div>
+        <p><strong>Nombre y Apellidos:</strong><br>
+        {{ cita.paciente_real.nombre }} {{ cita.paciente_real.apellido }}</p>
+    </div>
+
+    <div>
+        <p><strong>Fecha:</strong><br>
+        {{ cita.fecha }} {{ cita.hora }}</p>
+    </div>
+
+    <div>
+        <p><strong>BCV:</strong><br>
+        {{ tasa_bcv|floatformat:2 }}</p>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Insumo</th>
+            <th>Cant</th>
+            <th>USD</th>
+            <th>Subtotal USD</th>
+            <th>Subtotal BS</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for d in detalles %}
+        <tr>
+            <td>{{ d.insumo.nombre_ins }}</td>
+            <td>{{ d.cantidad }}</td>
+            <td>{{ d.insumo.precio_unitario_ins|floatformat:2 }}</td>
+            <td>{{ d.subtotal_usd|floatformat:2 }}</td>
+            <td>{{ d.subtotal_bs|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="total">
+    Subtotal USD: {{ subtotal_insumos_usd|floatformat:2 }} <br>
+    Consulta: {{ precio_consulta_usd|floatformat:2 }} <br><br>
+
+    <strong>TOTAL USD: {{ total_usd|floatformat:2 }}</strong><br>
+    <strong>TOTAL BS: {{ total_bs|floatformat:2 }}</strong>
+</div>
+
+<div class="footer">
+    Gracias por su preferencia
+</div>
+
+<div class="btn-print">
+    <button onclick="window.print()">Imprimir</button>
+</div>
+
+</div>
+
+</body>
+</html>

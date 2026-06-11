@@ -1,0 +1,84 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container-fluid px-4 mt-4">
+    <!-- TÍTULO -->
+    <div class="text-center mb-4">
+        <h1 class="page-title">PERFIL MÉDICO</h1>
+        <div class="divider"></div>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm p-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Especialidad -->
+            <div class="mb-3">
+                <label class="form-label fw-bold"><i class="fa-solid fa-stethoscope"></i> Especialidad</label>
+                {{ form.especialidad }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold"><i class="fa-solid fa-pen"></i> Precio de la Consulta </label>
+                {{ form.precio_consulta }}
+                {% if form.precio_consulta.errors %}
+                    <div class="text-danger small">
+                        {{ form.precio_consulta.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+                <label class="form-label fw-bold"><i class="fa-solid fa-pen"></i> Descripción</label>
+                {{ form.descripcion }}
+            </div>
+
+            <!-- Imagen de perfil -->
+            <div class="mb-3 text-center">
+                <label class="form-label fw-bold d-block"><i class="fa-solid fa-camera"></i> Foto de Perfil</label>
+                
+                {% if request.user.doctor_perfil.imagen %}
+                    <div class="mb-2">
+                        <img src="{{ request.user.doctor_perfil.imagen.url }}" 
+                             alt="Foto del doctor" 
+                             class="img-thumbnail rounded-circle" 
+                             style="width:150px; height:150px; object-fit:cover;">
+                    </div>
+                {% else %}
+                    <!-- Icono de usuario si no hay imagen -->
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-2" 
+                         style="width:150px; height:150px; font-size:3rem; color:#6c757d; margin:auto;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                {% endif %}
+                
+                {{ form.imagen }}
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg">
+                    <i class="fa-solid fa-floppy-disk"></i> 
+                </button>
+                <a href="{% url 'doctor_home' %}" class="btn btn-pro btn-edit btn-square btn-square-lg">
+                    <i class="bi bi-house-fill"></i> 
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

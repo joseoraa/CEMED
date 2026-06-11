@@ -1,0 +1,424 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container-fluid px-4 mt-4">
+
+    <div class="text-center mb-4">
+        <h1 class="page-title">CREAR CITA MÉDICA</h1>
+        <div class="divider"></div>
+    </div>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        <div class="mb-2">
+                            <label class="form-label fw-bold">¿Para quién es la cita?</label>
+                            {{ form.tipo }}
+                        </div>
+
+                        <!-- PACIENTE -->
+                        <div class="mb-2" id="bloque-paciente" style="display:none;">
+                            <label class="form-label fw-bold">Paciente</label>
+                            <div id="wrap-paciente">
+                                {{ form.paciente }}
+                            </div>
+                        </div>
+
+                        <!-- FAMILIAR -->
+                        <div class="mb-2" id="bloque-familiar" style="display:none;">
+                            <label class="form-label fw-bold">Familiar</label>
+                            {{ form.familiar }}
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-bold">Doctor</label>
+                            {{ form.doctor }}
+                            {% if form.doctor.errors %}
+                                <div class="text-danger small">{{ form.doctor.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div id="leyenda-horarios" class="mt-2 small text-muted"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label fw-bold">Fecha</label>
+                                {{ form.fecha }}
+                                {% if form.fecha.errors %}
+                                    <div class="text-danger small">{{ form.fecha.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label fw-bold">Hora</label>
+                                {{ form.hora }}
+                                {% if form.hora.errors %}
+                                    <div class="text-danger small">{{ form.hora.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-bold">Motivo</label>
+                            {{ form.motivo }}
+                            {% if form.motivo.errors %}
+                                <div class="text-danger small">{{ form.motivo.errors }}</div>
+                            {% endif %}
+                        </div>
+{% comment %} 
+                        <div class="mb-2">
+                            <label class="form-label fw-bold">Estado</label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                                <div class="text-danger small">{{ form.estado.errors }}</div>
+                            {% endif %}
+                        </div> {% endcomment %}
+
+                        <div class="d-flex justify-content-center align-items-center mt-1 gap-3">
+                            <a href="{% url 'lista_citas' %}" class="btn btn-pro btn-x btn-square btn-square-lg rounded-pill px-4"><i class="fas fa-x me-2"></i>
+                            </a>
+                            <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-lg rounded-pill px-4"><i class="fas fa-save me-2"></i>
+                                
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // =========================
+    // ELEMENTOS PRINCIPALES
+    // =========================
+    const doctorSelect = document.getElementById('id_doctor');
+    const fechaInput = document.getElementById('id_fecha');
+    const horaSelect = document.getElementById('id_hora');
+    const leyenda = document.getElementById('leyenda-horarios');
+
+    // =========================
+    // CARGAR HORAS DISPONIBLES
+    // =========================
+    function cargarHorasDisponibles() {
+        if (!doctorSelect || !fechaInput || !horaSelect) return;
+
+        const doctorId = doctorSelect.value;
+        const fecha = fechaInput.value;
+
+        horaSelect.innerHTML = '<option value="">Cargando horas...</option>';
+
+        if (!doctorId || !fecha) {
+            horaSelect.innerHTML = '<option value="">Seleccione primero doctor y fecha</option>';
+            return;
+        }
+
+        fetch(`/obtener-horas-disponibles/?doctor_id=${doctorId}&fecha=${fecha}`)
+            .then(response => response.json())
+            .then(data => {
+                horaSelect.innerHTML = '';
+
+                if (!data.horas || data.horas.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+                    return;
+                }
+
+                let defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccione una hora';
+                horaSelect.appendChild(defaultOption);
+
+                data.horas.forEach(hora => {
+                    let option = document.createElement('option');
+                    option.value = hora.value;
+                    option.textContent = hora.label;
+                    horaSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar horas:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+            });
+    }
+
+    // =========================
+    // LEYENDA DE HORARIOS (NUEVO)
+    // =========================
+
+
+    function mostrarLeyenda() {
+
+        const doctorSelect = document.getElementById('id_doctor');
+        const leyenda = document.getElementById('leyenda-horarios');
+
+        const doctorId = doctorSelect.value;
+
+        if (!doctorId) {
+            leyenda.innerHTML = '';
+            return;
+        }
+
+        const hoy = new Date();
+        const dias = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+
+        let promesas = [];
+
+        for (let i = 0; i < 14; i++) { // revisa 2 semanas
+
+            let fecha = new Date();
+            fecha.setDate(hoy.getDate() + i);
+
+            let fechaStr = fecha.toISOString().split('T')[0];
+            let diaNombre = dias[fecha.getDay()];
+
+            promesas.push(
+                fetch(`/obtener-horas-disponibles/?doctor_id=${doctorId}&fecha=${fechaStr}`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        // ❌ SI NO HAY HORAS → NO SE MUESTRA NADA
+                        if (!data.horas || data.horas.length === 0) {
+                            return null;
+                        }
+
+                        let horas = data.horas.map(h => h.value).join(' - ');
+
+                        return {
+                            fecha: fechaStr,
+                            dia: diaNombre,
+                            horas: horas
+                        };
+                    })
+            );
+        }
+
+        Promise.all(promesas).then(resultados => {
+
+            // 🔥 FILTRAR SOLO DISPONIBLES
+            let filtrados = resultados.filter(r => r !== null);
+
+            if (filtrados.length === 0) {
+                leyenda.innerHTML = '❌ Este doctor no tiene disponibilidad';
+                return;
+            }
+
+            let html = '<strong>🟢 Días disponibles del doctor:</strong><br>';
+
+            filtrados.forEach(r => {
+                html += `${r.fecha} (${r.dia}): ${r.horas}<br>`;
+            });
+
+            leyenda.innerHTML = html;
+        });
+    }
+    // =========================
+    // EVENTOS DOCTOR / FECHA
+    // =========================
+    if (doctorSelect && fechaInput && horaSelect) {
+
+        $('#id_doctor').on('change.select2', function () {
+            cargarHorasDisponibles();
+            mostrarLeyenda();
+        });
+        fechaInput.addEventListener('change', cargarHorasDisponibles);
+    }
+
+    // =========================
+    // SELECT2 PACIENTE / DOCTOR
+    // =========================
+    $(document).ready(function () {
+
+        $('#id_paciente').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Buscar paciente por nombre, apellido o CI...',
+            allowClear: true
+        });
+
+        $('#id_doctor').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Buscar doctor por nombre o especialidad...',
+            allowClear: true
+        });
+
+        $('#id_familiar').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Buscar familiar por nombre...',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+
+    // =========================
+    // TOGGLE PACIENTE / FAMILIAR
+    // =========================
+    const tipo = document.getElementById('id_tipo');
+    const bloquePaciente = document.getElementById('bloque-paciente');
+    const bloqueFamiliar = document.getElementById('bloque-familiar');
+
+    const paciente = document.getElementById('id_paciente');
+    const familiar = document.getElementById('id_familiar');
+
+    function reset() {
+        if (paciente) paciente.value = '';
+        if (familiar) familiar.value = '';
+    }
+
+    function toggle() {
+
+        reset();
+
+        if (!tipo) return;
+
+        if (tipo.value === 'PACIENTE') {
+            bloquePaciente.style.display = 'block';
+            bloqueFamiliar.style.display = 'none';
+        }
+
+        else if (tipo.value === 'FAMILIAR') {
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'block';
+        }
+
+        else {
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'none';
+        }
+    }
+
+    if (tipo) {
+        tipo.addEventListener('change', toggle);
+        toggle();
+    }
+
+});
+
+</script>
+
+{% endblock %}
+
+
+{% comment %} document.addEventListener('DOMContentLoaded', function () {
+    const doctorSelect = document.getElementById('id_doctor');
+    const fechaInput = document.getElementById('id_fecha');
+    const horaSelect = document.getElementById('id_hora');
+
+    function cargarHorasDisponibles() {
+        if (!doctorSelect || !fechaInput || !horaSelect) return;
+
+        const doctorId = doctorSelect.value;
+        const fecha = fechaInput.value;
+
+        horaSelect.innerHTML = '<option value="">Cargando horas...</option>';
+
+        if (!doctorId || !fecha) {
+            horaSelect.innerHTML = '<option value="">Seleccione primero doctor y fecha</option>';
+            return;
+        }
+
+        fetch(`/obtener-horas-disponibles/?doctor_id=${doctorId}&fecha=${fecha}`)
+            .then(response => response.json())
+            .then(data => {
+                horaSelect.innerHTML = '';
+
+                if (!data.horas || data.horas.length === 0) {
+                    horaSelect.innerHTML = '<option value="">No hay horas disponibles</option>';
+                    return;
+                }
+
+                let defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccione una hora';
+                horaSelect.appendChild(defaultOption);
+
+                data.horas.forEach(hora => {
+                    let option = document.createElement('option');
+                    option.value = hora.value;
+                    option.textContent = hora.label;
+                    horaSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar horas:', error);
+                horaSelect.innerHTML = '<option value="">Error al cargar horas</option>';
+            });
+    }
+
+    if (doctorSelect && fechaInput && horaSelect) {
+        doctorSelect.addEventListener('change', cargarHorasDisponibles);
+        fechaInput.addEventListener('change', cargarHorasDisponibles);
+    }
+});
+
+$(document).ready(function() {
+    // Inicializar el buscador para el Paciente
+    $('#id_paciente').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Buscar paciente por nombre, apellido o CI...',
+        allowClear: true
+    });
+
+    // Inicializar el buscador para el Doctor
+    $('#id_doctor').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Buscar doctor por nombre o especialidad...',
+        allowClear: true
+    });
+});
+
+    $('#id_familiar').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Buscar familiar por nombre...',
+        allowClear: true,
+        width: '100%' // El width 100% evita que se vea pequeño al estar oculto inicialmente
+    });
+    
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tipo = document.getElementById('id_tipo');
+    const bloquePaciente = document.getElementById('bloque-paciente');
+    const bloqueFamiliar = document.getElementById('bloque-familiar');
+
+    const paciente = document.getElementById('id_paciente');
+    const familiar = document.getElementById('id_familiar');
+
+    function reset() {
+        paciente.value = '';
+        familiar.value = '';
+    }
+
+    function toggle() {
+
+        reset();
+
+        if (tipo.value === 'PACIENTE') {
+            bloquePaciente.style.display = 'block';
+            bloqueFamiliar.style.display = 'none';
+        }
+
+        else if (tipo.value === 'FAMILIAR') {
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'block';
+        }
+
+        else {
+            bloquePaciente.style.display = 'none';
+            bloqueFamiliar.style.display = 'none';
+        }
+    }
+
+    tipo.addEventListener('change', toggle);
+    toggle(); // estado inicial oculto
+}); {% endcomment %}

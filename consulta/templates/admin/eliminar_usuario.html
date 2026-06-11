@@ -1,0 +1,23 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="card border-danger shadow">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Eliminar Usuario</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead">
+                ¿Estás seguro de que deseas eliminar al usuario:
+                <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>?
+            </p>
+            <p class="text-muted">Esta acción no se puede deshacer.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                <a href="{% url 'listar_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

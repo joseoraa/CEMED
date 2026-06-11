@@ -1,0 +1,35 @@
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 style="color: cyan;">Bienvenida Enfermera {{ request.user.nombre }}!</h1>
+        <p class="lead">Panel principal de enfermería</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Gestión de pacientes</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><a href="#">Ver pacientes asignados</a></li>
+                        <li class="list-group-item"><a href="#">Actualizar datos de pacientes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Tareas rápidas</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><a href="#">Registrar signos vitales</a></li>
+                        <li class="list-group-item"><a href="#">Reportes diarios</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

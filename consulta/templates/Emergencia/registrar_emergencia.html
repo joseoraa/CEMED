@@ -1,0 +1,193 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<div class="container-fluid px-4 mt-4">
+
+<div class="card shadow-lg border-0"
+     style="border-radius: 20px; overflow: hidden; margin-top:90px">
+
+<div class="card-header py-3 text-center"
+     style="background: linear-gradient(135deg, #c62828 20%, #e53935 50%, #ef5350 90%);">
+
+    <h5 class="m-0 font-weight-bold text-white">
+        <i class="fa-solid fa-truck-medical"></i> REGISTRAR EMERGENCIA
+    </h5>
+</div>
+
+<div class="card-body mt-4">
+
+<form method="POST">
+    {% csrf_token %}
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+
+        <!-- TIPO PERSONA -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Tipo de Persona</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+                {{ form.tipo_persona }}
+            </div>
+        </div>
+
+        <!-- EXISTENTE -->
+        <div class="col-md-12 mb-3 d-none" id="campo_existente">
+            <label class="form-label fw-semibold">Paciente Registrado</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                {{ form.id_persona }}
+            </div>
+        </div>
+
+        <!-- NUEVO PACIENTE -->
+        <div id="nuevo_paciente" class="d-none">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label>Cédula</label>
+                    {{ form.cedula }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Nombre</label>
+                    {{ form.nombre_paciente }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Apellido</label>
+                    {{ form.apellido_paciente }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Fecha Nacimiento</label>
+                    {{ form.fecha_nacimiento }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Sexo</label>
+                    {{ form.sexo }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- NUEVO -->
+        <div id="nuevo" class="d-none">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label>Nombre</label>
+                    {{ form.nombre_paciente }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Apellido</label>
+                    {{ form.apellido_paciente }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Sexo</label>
+                    {{ form.sexo }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Fecha Nacimiento</label>
+                    {{ form.fecha_nacimiento }}
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label>Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MOTIVO -->
+        <div class="col-md-12 mb-3">
+            <label>Motivo de Consulta</label>
+            {{ form.motivo_consulta }}
+        </div>
+
+    </div>
+
+    <div class="text-center mt-3">
+        <button class="btn btn-pro btn-square btn-square-lg btn-guardar">
+            <i class="fas fa-save"></i> 
+        </button>
+    </div>
+
+</form>
+
+</div>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    // ====== SELECT2 ======
+    $('#id_id_persona').select2({
+        placeholder: "Buscar paciente o familiar...",
+        width: '80%',
+        allowClear: true
+    });
+
+    // ====== MOSTRAR / OCULTAR BLOQUES ======
+    function toggleCampos() {
+        let tipo = $('#id_tipo_persona').val();
+
+        $('#campo_existente').addClass('d-none');
+        $('#nuevo').addClass('d-none');
+        $('#nuevo_paciente').addClass('d-none');
+
+        if (tipo === 'EXISTENTE') {
+            $('#campo_existente').removeClass('d-none');
+        }
+
+        if (tipo === 'NUEVO') {
+            $('#nuevo').removeClass('d-none');
+        }
+
+        if (tipo === 'NUEVO_PACIENTE') {
+            $('#nuevo_paciente').removeClass('d-none');
+        }
+    }
+
+    // ejecutar al cargar
+    toggleCampos();
+
+    // ejecutar al cambiar select
+    $('#id_tipo_persona').change(function () {
+        toggleCampos();
+    });
+
+});
+</script>
+
+{% endblock %}

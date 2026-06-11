@@ -1,0 +1,172 @@
+{% extends "Inicio/base.html" %}
+{% block title %}CEMED{% endblock title %}
+{%load static%}
+{% block content %}
+
+
+<br>
+<div class="container mt-5">
+
+    {% if slides %}
+    <div id="cemedSlider" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+
+        <div class="carousel-inner">
+
+            {% for slide in slides %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                
+                <div class="slider-row">
+
+                    <div class="slider-side d-none d-md-flex">
+                        {% if slide.izquierda %}
+                            <img src="{{ login.jpg }}" class="img">
+                        {% endif %}
+                    </div>
+
+
+                    <div class="slider-side d-none d-md-flex">
+                        {% if slide.izquierda %}
+                            <img src="{{ slide.izquierda.imagen.url }}" class="slider-multi-img">
+                        {% endif %}
+                    </div>
+
+                    <!-- Imagen principal -->
+                    <div class="slider-center">
+                        <img src="{{ slide.centro.imagen.url }}" class="slider-main-img">
+                    </div>
+
+                    <!-- Imagen derecha -->
+                    <div class="slider-side d-none d-md-flex">
+                        {% if slide.derecha %}
+                            <img src="{{ slide.derecha.imagen.url }}" class="slider-multi-img">
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Controles -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#cemedSlider" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+
+        <button class="carousel-control-next" type="button" data-bs-target="#cemedSlider" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="container mt-5">
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100 rounded-4">
+                <div class="card-body text-center p-4">
+                    <i class="fa-solid fa-eye fa-2x text-primary mb-3"></i>
+                    <h3 class="fw-bold text-primary">Visión</h3>
+                    <p class="mt-3 text-muted">
+                        Consolidarnos como el pilar de la salud accesible y equitativa de la comunidad. 
+                        Seremos un centro modelo por nuestro enfoque en la Atención Primaria Integral,
+                        asegurando acceso oportuno a los mejores cuidados de salud.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow h-100 rounded-4">
+                <div class="card-body text-center p-4">
+                    <i class="fa-solid fa-heart-pulse fa-2x text-danger mb-3"></i>
+                    <h3 class="fw-bold text-danger">Misión</h3>
+                    <p class="mt-3 text-muted">
+                        Promover, proteger y recuperar la salud de la comunidad, ofreciendo
+                        una atención integral, accesible y de calidad con enfoque humano.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- SERVICIOS -->
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Nuestros Servicios</h2>
+        <p class="text-muted">Comprometidos con tu bienestar</p>
+    </div>
+
+    <div class="row text-center g-4">
+
+        <div class="col-md-4">
+            <div class="p-4 shadow rounded-4 bg-light h-100">
+                <i class="fa-solid fa-stethoscope fa-2x text-primary mb-3"></i>
+                <h5 class="fw-bold">Consulta Médica</h5>
+                <p class="text-muted">Atención personalizada con profesionales capacitados.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 shadow rounded-4 bg-light h-100">
+                <i class="fa-solid fa-x-ray fa-2x text-success mb-3"></i>
+                <h5 class="fw-bold">Imageneologia</h5>
+                <p class="text-muted">Te la llevamos hasta a la puerta de Tu casa si es necesario.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 shadow rounded-4 bg-light h-100">
+                <i class="fa-solid fa-user-doctor fa-2x text-danger mb-3"></i>
+                <h5 class="fw-bold">Especialistas</h5>
+                <p class="text-muted">Acceso a médicos especializados.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+<br>
+
+<!-- FOOTER -->
+<footer class="footer-pro text-light">
+    <div class="container-fluid py-4"> <div class="row align-items-center">
+
+            <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                <h4 class="fw-bold mb-1">CEMED</h4>
+                <small class="fw-semibold d-block">Dr. Jose Ramon Oráa</small>
+                <small class="text-white-50 d-block">Centro médico comprometido con la salud y bienestar.</small>
+            </div>
+
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                <p class="mb-1"><i class="fa-solid fa-phone me-2"></i> +58 412-0456004</p>
+                <p class="mb-0"><i class="fa-solid fa-envelope me-2"></i> cemedjroraa@gmail.com</p>
+            </div>
+
+            <div class="col-md-4 text-center text-md-end">
+                <a href="https://www.tiktok.com/@imagenologuia" class="footer-icon me-3" target="_blank">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+                <a href="https://www.instagram.com/cemedjroraa/" class="footer-icon me-3" target="_blank">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=4120456004" class="footer-icon" target="_blank">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <hr class="footer-separator">
+
+        <div class="text-center small opacity-75">
+            &copy; 2026 CEMED - Todos los derechos reservados
+        </div>
+    </div>
+</footer>
+
+{% endblock %}

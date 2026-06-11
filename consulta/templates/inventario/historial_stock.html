@@ -1,0 +1,105 @@
+<div class="modal fade" id="historialModal{{ insumo.id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Historial: {{ insumo.nombre_ins }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- RESUMEN -->
+                <div class="row mb-4">
+
+                    <div class="col-md-4">
+                        <div class="card border-success shadow-sm">
+                            <div class="card-body text-center">
+                                <h6 class="text-success">Entradas Totales</h6>
+                                <h3>{{ total_entradas|default:0 }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-danger shadow-sm">
+                            <div class="card-body text-center">
+                                <h6 class="text-danger">Salidas Totales</h6>
+                                <h3>{{ total_salidas|default:0 }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-primary shadow-sm">
+                            <div class="card-body text-center">
+                                <h6 class="text-primary">Stock Actual</h6>
+                                <h3>{{ insumo.cantidad_ins }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TABLA -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Stock Ant.</th>
+                                <th>Stock Act.</th>
+                                <th>Usuario</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for m in movimientos %}
+                            <tr>
+                                <td>{{ m.fecha|date:"d/m/Y H:i" }}</td>
+
+                                <td>
+                                    {% if m.tipo == 'ENTRADA' %}
+                                        <span class="text-success">Entrada</span>
+                                    {% else %}
+                                        <span class="text-danger">Salida</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="fw-bold">{{ m.cantidad }}</td>
+                                <td>{{ m.stock_anterior }}</td>
+                                <td>{{ m.stock_actual }}</td>
+
+                                <td>
+                                    {% if m.usuario %}
+                                         {{ m.usuario.nombre }} {{ m.usuario.apellido }}
+                                    {% else %}
+                                        <span class="text-danger">Sistema</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ m.descripcion|default:"---" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    Sin movimientos
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

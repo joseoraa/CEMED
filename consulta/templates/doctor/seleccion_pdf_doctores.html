@@ -1,0 +1,110 @@
+{% extends 'Inicio/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow-lg border-0 rounded-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h3 class="mb-0">
+                <i class="fa-solid fa-file-pdf"></i>
+                Reporte Profesional de Doctores
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET"
+                  action="{% url 'pdf_doctores_horarios' %}"
+                  target="_blank">
+
+                <div class="row g-4">
+
+                    <!-- ESPECIALIDAD -->
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-bold">
+                            Especialidad
+                        </label>
+
+                        <select name="especialidad"
+                                class="form-select">
+
+                            <option value="">
+                                TODAS LAS ESPECIALIDADES
+                            </option>
+
+                            {% for e in especialidades %}
+
+                            <option value="{{ e.id }}">
+
+                                {{ e.nombre_espe }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <!-- DOCTOR -->
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-bold">
+                            Doctor Individual
+                        </label>
+
+                        <select name="doctor"
+                                class="form-select">
+
+                            <option value="">
+                                TODOS LOS DOCTORES
+                            </option>
+
+                            {% for d in doctores %}
+
+                            <option value="{{ d.id }}">
+
+                                Dr. {{ d.usuario.nombre }}
+                                {{ d.usuario.apellido }}
+
+                                -
+                                {{ d.especialidad.nombre_espe }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="text-center mt-5">
+
+                    <button type="submit"
+                            class="btn btn-pro btn-square btn-square-lg btn-danger">
+
+                        <i class="fa-solid fa-file-pdf"></i>
+
+                   
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

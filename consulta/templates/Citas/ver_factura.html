@@ -1,0 +1,84 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+
+
+
+<div class="text-center mb-4">
+    <h1 class="page-title"> RECIBO #{{ factura.id }}</h1>
+    <div class="divider"></div>
+</div>
+
+<div class="card shadow-sm border-0" style="border-radius: 15px;">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>
+                    <strong> NOMBRE Y APELLIDO:</strong> {{ cita.paciente_real.nombre }} {{ cita.paciente_real.apellido }}
+                </h5>
+                <p>
+                    <strong>Fecha Cita:</strong> {{ cita.fecha }} {{ cita.hora }}
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p><strong>Fecha Emisión:</strong> {{ factura.fecha|date:"d/m/Y H:i" }}</p>
+                <p><strong>Tasa aplicada (BCV):</strong> {{ tasa_bcv }} Bs/$</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <table class="table table-hover text-center align-middle">
+            <thead class="bg-medical-blue text-white">
+                <tr>
+                    <th>Insumo</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario (USD)</th>
+                    <th>Subtotal (USD)</th>
+                    <th>Subtotal (BS)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for d in detalles %}
+                <tr>
+                    <td>{{ d.insumo.nombre_ins }}</td>
+                    <td>{{ d.cantidad }}</td>
+                    <td>$ {{ d.insumo.precio_unitario_ins|floatformat:2 }}</td>
+                    <!-- Aquí usamos d.subtotal_usd calculado en la vista -->
+                    <td>$ {{ d.subtotal_usd|floatformat:2 }}</td>
+                    <td>{{ d.subtotal_bs|floatformat:2 }} Bs</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No se utilizaron insumos adicionales.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        <div class="row mt-4">
+            <div class="col-md-7">
+                <p class="text-muted small">* Los montos en Bolívares están calculados a la tasa oficial del BCV vigente al momento de la atención.</p>
+            </div>
+            <div class="col-md-5 text-end">
+                <p class="mb-1">Subtotal Insumos: <strong>{{ subtotal_insumos_usd|floatformat:2 }} $</strong></p>
+                <p class="mb-1">Precio Consulta: <strong>{{ precio_consulta_usd|floatformat:2 }} $</strong></p>
+                <hr>
+                <!-- Usamos los datos directamente del objeto factura -->
+                <h3 class="text-success mb-1">TOTAL $: {{ total_usd|floatformat:2 }} </h3>
+                <h3 class="text-primary">TOTAL BS: {{ total_bs|floatformat:2 }} </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4 no-print">
+    <a href="{% url 'ver_factura_print' cita.id %}" target="_blank" class="btn btn-pro btn-square btn-square-lg btn-ver">
+        <i class="fas fa-print"></i>
+    </a>
+</div>
+
+{% endblock %}

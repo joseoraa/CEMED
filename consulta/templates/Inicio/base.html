@@ -1,0 +1,584 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>{% block title %}CEMED JR ORAA{% endblock %}</title>
+
+    <link rel="icon" type="image/jpg" href="{% static 'images/login.jpg' %}">
+    <!-- Bootstrap -->
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="{% static 'js/restricciones_form.js' %}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-pro">
+    <div class="container-fluid px-4">
+        
+        <a class="navbar-brand fw-bold text-white fs-4" href="#">
+            <i class="fa-solid fa-stethoscope me-2"></i>
+            CEMED <span class="fw-light"> JR ORAA</span>
+        </a>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                
+
+                                
+
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item me-3">
+                        <span class="text-white fw-bold">
+                            BCV: {{ bcv_actual }}
+                        </span>
+                    </li>    
+
+                    <li class="nav-item me-3">
+                        <span class="nav-link text-white fw-semibold text-uppercase small">
+                            <i class="fa-solid fa-user-check me-1"></i>
+                            {{ request.user.nombre }} {{ request.user.apellido }}
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-hover" href="{% url 'logout' %}">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i>
+                            Cerrar sesión
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-hover" href="{% url 'home' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-hover" href="{% url 'registro_paciente' %}">Registro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-hover" href="{% url 'login' %}">Iniciar sesión</a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+{% comment %}  ================================================================================================================================ {% endcomment %}
+
+{% if request.user.is_authenticated %}
+
+<button id="sidebar-toggler">☰</button>
+
+
+<div id="sidebar">
+
+    {% if request.user.rol == "ADMIN" %}
+        <h5 class="text-center fw-bold mb-3  "><i class="fa-solid fa-gear"></i></h5>
+        <a href="{% url 'admin_home' %}"><i class="bi bi-house-fill"></i> Inicio</a>
+
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-link">
+                    <i class="fa-regular fa-registered"></i> Registros
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>
+            </a>
+            <div class="submenu">
+                <a href="{% url 'crear_usuario' %}" class="submenu-link"><i class="fa-solid fa-user-plus me-2"></i> Persona</a>
+                <a href="{% url 'crear_familiar_admin' %}" class="submenu-link"><i class="fa-solid fa-user-plus me-2"></i> Carga Familiar</a>
+                <a href="{% url 'asignar_familiar_paciente' %}" class="submenu-link"><i class="fa-solid fa-user-plus me-2"></i> Asignar Familiar</a>
+                <a href="{% url 'examenes' %}">
+                <i class="fas fa-flask me-2"></i> Exámen
+                </a>
+                <a href="{% url 'especialidades' %}"><i class="fa-solid fa-briefcase-medical"></i> Especialidades </a>
+                <a href="{% url 'insumos' %}">
+                    <i class="fas fa-pills me-1"></i> Insumo Médico
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-book-medical"></i>Gestión de Examenes y Consultas
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i></a>
+
+                <div class="submenu">
+                    <a href="{% url 'crear_cita_admin' %}"><i class="fas fa-calendar-plus me-1"></i> Citas</a>
+                    <a href="{% url 'registrar_examen' %}"><i class="fas fa-calendar-plus me-1"></i> Examenes</a>
+
+                </div>
+        </div>
+
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-list"></i>Consultas (Listas)
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i></a>
+
+                <div class="submenu">
+                    <a href=" {% url 'lista_doctores'%}"><i class="fa-solid fa-user-doctor"></i> Médicos</a>
+                    <a href="{% url 'lista_pacientes' %}"><i class="fa-solid fa-hospital-user"></i> Pacientes</a>
+                    <a href="{% url 'lista_carga_familiar_admin' %}"><i class="fa-solid fa-hospital-user"></i> Familiares de Paciente</a>
+                    <a href="{% url 'lista_insumos' %}"> <i class="fas fa-pills me-1"></i> Insumos Médicos </a>
+                    <a href="{% url 'lista_examenes' %}"><i class="fa-solid fa-stethoscope"></i>  Examen</a>
+                    <a href=" {%url 'listar_examenes'%} "><i class="fa-solid fa-user-nurse"></i> Examenes Realizados </a>
+                    <a href=" {%url 'lista_citas'%} "><i class="fa-solid fa-user-nurse"></i> Citas </a>
+                </div>
+        </div>
+
+
+            <div class="sidebar-section">
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-kit-medical"></i> Emergencia  
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>  
+                </a>
+                <div class="submenu">
+                    <a href="{% url 'registrar_emergencia' %}"><i class="fa-solid fa-plus"></i> Registrar</a>
+                    <a href="{% url 'lista_emergencias' %}"><i class="fa-solid fa-kit-medical"></i> Lista</a>
+                </div>
+            </div>
+
+
+
+            <div class="sidebar-section">
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-chart-simple"></i> Estadisticas  
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>  
+                </a>
+                <div class="submenu">
+                    <a href="{% url 'estadisticas_mensuales' %}"target="_blank"><i class="fa-solid fa-square-poll-vertical"></i> Generales de Insumos </a>
+                    <a href="{% url 'grafico_consumo_insumos' %}"target="_blank"><i class="fa-solid fa-square-poll-vertical"></i>  Insumos </a>
+                </div>
+            </div>
+
+
+            <div class="sidebar-section">
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-file-pdf"></i> Reportes  
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>  
+                </a>
+                <div class="submenu">
+                    <a href="{% url 'reportes_contabilidad' %}"><i class="fa-solid fa-calculator"></i> Generales</a>
+                    <a href="{% url 'reporte_pacientes' %}"><i class="fa-solid fa-file-pdf"></i> Pacientes</a>
+                    <a href="{% url 'seleccion_pdf_doctores' %}"><i class="fa-solid fa-file-pdf"></i> Horario por Especialidad</a>
+                </div>
+            </div>
+
+    
+            <div class="sidebar-section">
+                <a href="#" class="sidebar-link">
+                    <i class="fa-solid fa-gear me-2"></i> Configuración
+                    <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>
+                </a>
+                <div class="submenu">
+
+                    <a href="{% url 'slider_agregar' %}" class="submenu-link"><i class="fa-solid fa-image me-2"></i> Slider Inicio</a>
+                    <a href="{% url 'listar_usuarios' %}" class="submenu-link"><i class="fa-solid fa-users me-2"></i> Usuarios</a>
+                    
+                    <a href="{% url 'cambiar_password' %}" class="submenu-link"><i class="fa-solid fa-key me-2"></i> Cambiar Contraseña</a>
+                </div>
+            </div>
+        </div>
+                
+    <hr style="border: 2px; height: 2px; background: white; border-radius: 5px; opacity: 0.3; margin-left:20px; margin-right:50px"> 
+
+    <div class="mt-1">
+        <a href="{% url 'logout' %}" 
+        class="text-white d-flex align-items-center"
+        onclick="return confirmarCerrarSesion();">
+            <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar sesión
+        </a>
+    </div>
+
+{% comment %}  ================================================================================================================================ {% endcomment %}
+
+        
+    {% elif request.user.rol == "DOCTOR" %}
+        <h5 class="text-center fw-bold mb-3 ms-4"> <i class="fa-solid fa-hospital-user"></i> </h5>
+        <a href="{% url 'doctor_home' %}"><i class="bi bi-house-fill"></i> Inicio</a>
+        <a href="{% url 'registrar_horario' request.user.doctor_perfil.id %}"><i class="fa-solid fa-clock"></i> Registrar Horario</>
+        <a href="{% url 'citas_doctor'%}"><i class="fa-solid fa-calendar-check"></i> Mis Citas</a>
+        <a href="{% url 'mis_examenes_doctor'%}"><i class="fa-solid fa-vial-circle-check"></i> Examenes Medicos Realizados</a>
+        <a href="{% url 'lista_pacientes' %}"><i class="fa-solid fa-hospital-user"></i> Pacientes</a>
+        <a href="{% url 'lista_emergencias' %}"><i class="fa-solid fa-kit-medical"></i> Emergencias</a>
+
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-link d-flex justify-content-between align-items-center" id="config-toggle">
+                <span><i class="fa-solid fa-gear me-2"></i> Configuración</span>
+                <i class="fa-solid fa-chevron-down" id="config-icon"></i>
+            </a>
+            <div class="submenu" id="config-menu">
+                
+                <a href="{% url 'editar_perfil_doctor' %}" class="submenu-link"><i class="fa-solid fa-user-group me-2"></i> Perfil</a>
+                <a href="{% url 'cambiar_password' %}" class="submenu-link"><i class="fa-solid fa-key me-2"></i> Cambiar Contraseña</a>
+            </div>
+        </div>
+        <div class="mt-auto border-top">
+            <a href="{% url 'logout' %}" 
+            class="text-white d-flex align-items-center"
+            onclick="return confirmarCerrarSesion();">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar sesión
+            </a>
+        </div>
+
+
+{% comment %}  ================================================================================================================================ {% endcomment %}
+
+    {% elif request.user.rol == "PACIENTE" %}
+        <h5 class="text-center fw-bold mb-3">Mi Panel</h5>
+        <a href="{% url 'pacientes_home' %}"><i class="bi bi-house-fill"></i> Inicio</a>
+        <a href=" {% url 'mis_citas' %}  "><i class="fa-solid fa-calendar-check"></i> Mis Citas</a>
+        <a href=" {% url 'mis_examenes' %}  "><i class="fa-solid fa-calendar-check"></i> Mis Examenes</a>
+        <a href="{% url 'crear_familiar_paciente' %}" class="submenu-link"><i class="fa-solid fa-user-plus me-2"></i> Familiares</a>
+        <a href="{% url 'mis_familiares' %}" class="submenu-link"><i class="fa-solid fa-user-plus me-2"></i> Mis Familiares</a>
+        <a href="{% url 'examenes_disponibles' %}"><i class="fa-solid fa-vial-circle-check"></i> Servicios Disponibles</a>
+        <a href="{% url 'doctores_disponibles' %}"><i class="fa-solid fa-vial-circle-check"></i> Médicos Disponibles</a>  
+
+
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-link d-flex justify-content-between align-items-center" id="config-toggle">
+                <span><i class="fa-solid fa-gear me-2"></i> Configuración</span>
+                <i class="fa-solid fa-chevron-down" id="config-icon"></i>
+            </a>
+            <div class="submenu" id="config-menu">
+                <a href="{% url 'actualizar_datos' %}"><i class="fa-solid fa-user-pen"></i></i> Mi Perfil</a>
+                <a href="{% url 'cambiar_password' %}"><i class="bi bi-wrench-adjustable"></i> Cambiar Contraseña</a>     
+            </div>
+        </div>
+        <div class="mt-auto border-top">
+            <a href="{% url 'logout' %}" 
+            class="text-white d-flex align-items-center"
+            onclick="return confirmarCerrarSesion();">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar sesión
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% comment %}  ================================================================================================================================ {% endcomment %}
+
+
+<div id="main-content" class="{% if not request.user.is_authenticated %}full{% endif %}">
+    <main class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // -------------------------------
+    // Toggle sidebar principal
+    // -------------------------------
+    const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main-content");
+    const toggler = document.getElementById("sidebar-toggler");
+    let autoCloseTimer;
+
+    function openSidebar() {
+        sidebar.classList.remove("closed");
+        main.classList.remove("full");
+        clearTimeout(autoCloseTimer);
+        autoCloseTimer = setTimeout(() => closeSidebar(), 10000); // auto-close
+    }
+
+    function closeSidebar() {
+        sidebar.classList.add("closed");
+        main.classList.add("full");
+    }
+
+    function toggleSidebar() {
+        if(sidebar.classList.contains("closed")) {
+            openSidebar();
+        } else {
+            closeSidebar();
+            clearTimeout(autoCloseTimer);
+        }
+    }
+
+    if(toggler) toggler.addEventListener("click", toggleSidebar);
+    openSidebar(); 
+});
+
+
+
+
+    function confirmarCerrarSesion() {
+        return confirm("¿Estás seguro que deseas cerrar sesión?");
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 4000 }).show()
+        })
+    })    
+
+
+
+
+// prueba
+
+// Si el usuario intenta interactuar y el servidor dice que no hay sesión
+$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+    if (jqXHR.status == 401 || jqXHR.status == 403) {
+        window.location.href = "{% url 'login' %}";
+    }
+});
+
+// Opcional: Recargar la página si el usuario regresa a la pestaña después de mucho tiempo
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === 'visible') {
+        // Al volver a la pestaña, forzamos un refresh silencioso para verificar sesión
+        fetch(window.location.href, { method: 'HEAD' })
+            .then(response => {
+                if (response.status === 404 || response.status === 403) {
+                    window.location.href = "{% url 'login' %}";
+                }
+            });
+    }
+});
+
+
+function abrirBCV() {
+    let modal = document.getElementById('modalBCV');
+
+    if (!modal) {
+        console.error("Modal BCV no existe en el DOM");
+        return;
+    }
+
+    let modalBootstrap = new bootstrap.Modal(modal);
+    modalBootstrap.show();
+}
+
+
+
+setTimeout(function() {
+            var alertElement = document.getElementById('alerta-stock');
+            if (alertElement) {
+                // Usa la instancia de Bootstrap para cerrarla con animación
+                var bsAlert = new bootstrap.Alert(alertElement);
+                bsAlert.close();
+            }
+        }, 5000); // 5000ms = 5 segundos
+
+document.addEventListener('DOMContentLoaded', function () {
+    const alertas = document.querySelectorAll('.autoclose-alert');
+
+    alertas.forEach(alerta => {
+        setTimeout(() => {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alerta);
+            bsAlert.close();
+        }, 2000); // 4 segundos
+    });
+});
+</script>
+
+{% comment %}  ================================================================================================================================ {% endcomment %}
+<div class="position-fixed top-0 start-50 translate-middle-x p-3"
+     style="z-index: 1200; width: 100%; max-width: 500px;">
+
+    <!-- ⚠️ ALERTA: BCV DESACTUALIZADO -->
+    {% if bcv_vencido and request.user.rol == 'ADMIN' %}
+    <div class="alert alert-danger d-flex align-items-center shadow-lg border-0 mb-3" 
+         role="alert" 
+         style="padding: 1rem; border-radius: 0.75rem;">
+        
+        <i class="bi bi-currency-exchange me-3" style="font-size: 1.5rem;"></i>
+        
+        <div class="flex-grow-1">
+            <strong class="d-block" style="font-size: 1.1rem;">BCV DESACTUALIZADO</strong>
+            <strong><span style="font-size: 0.95rem;">Debes actualizar la tasa del día para continuar.</span></strong>
+        </div>
+
+        <a href="{% url 'crear_bcv' %}"
+           class="btn btn-pro btn-square btn-square-sm btn-delete"
+           style="white-space: nowrap; border-radius: 0.5rem;">
+            <i class="bi bi-arrow-clockwise me-1"></i> 
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 🔔 ALERTA: STOCK BAJO -->
+<!-- 🔔 ALERTA: STOCK BAJO -->
+{% if insumos_bajos_global and request.user.is_staff %}
+<div class="alert alert-danger alert-dismissible fade show d-flex align-items-start shadow-lg border-0 mb-0 autoclose-alert"
+     role="alert"
+     style="padding: 1rem; border-radius: 0.75rem;">
+
+    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+
+    <div class="flex-grow-1 text-dark">
+        <strong class="d-block" style="font-size: 1.1rem;">🚨 STOCK BAJO</strong>
+        <ul class="mb-0 ps-3" style="font-size: 0.95rem;">
+            {% for i in insumos_bajos_global %}
+                <strong><li>{{ i.nombre_ins }} (Quedan: {{ i.cantidad_ins }})</li></strong>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+
+
+
+<div class="position-fixed top-0 start-50 translate-middle-x p-3"
+     style="z-index: 1200; width: auto; max-width: 500px;">
+
+    {% if messages %}
+        {% for message in messages %}
+
+            <div class="toast show align-items-center 
+                {% if message.tags == 'success' %}
+                    text-bg-success
+                {% elif message.tags == 'error' %}
+                    text-bg-danger
+                {% elif message.tags == 'warning' %}
+                    text-bg-warning
+                {% else %}
+                    text-bg-primary
+                {% endif %}
+                border-0"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                style="font-size: 1.1rem; padding: 1rem; margin-top: 1rem;">
+
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center">
+
+                        {% if message.tags == "success" %}
+                            <i class="bi bi-check-circle-fill me-3" style="font-size: 1.5rem;"></i>
+                        {% elif message.tags == "error" %}
+                            <i class="bi bi-x-circle-fill me-3" style="font-size: 1.5rem;"></i>
+                        {% elif message.tags == "warning" %}
+                            <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill me-3" style="font-size: 1.5rem;"></i>
+                        {% endif %}
+
+                        <span>{{ message }}</span>
+                    </div>
+
+                    <button type="button"
+                            class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+            </div>
+
+        {% endfor %}
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% comment %} const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main-content");
+    const toggler = document.getElementById("sidebar-toggler");
+
+    let autoCloseTimer;
+
+    // Función para abrir el sidebar
+    function openSidebar() {
+        sidebar.classList.remove("closed");
+        main.classList.remove("full");
+
+        clearTimeout(autoCloseTimer);
+
+        // Cerrar automáticamente después de 10 segundos
+        autoCloseTimer = setTimeout(() => {
+            closeSidebar();
+        }, 10000);
+    }
+
+    // Función para cerrar el sidebar
+    function closeSidebar() {
+        sidebar.classList.add("closed");
+        main.classList.add("full");
+    }
+
+    // Alternar sidebar
+    function toggleSidebar() {
+        if (sidebar.classList.contains("closed")) {
+            openSidebar();
+        } else {
+            closeSidebar();
+            clearTimeout(autoCloseTimer);
+        }
+    }
+
+    // Evento del toggler
+    if (toggler) {
+        toggler.addEventListener("click", toggleSidebar);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        openSidebar(); 
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('config-toggle');
+        const menu = document.getElementById('config-menu');
+        const icon = document.getElementById('config-icon');
+
+        if(toggle) {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                if(menu.style.display === "block") {
+                    menu.style.display = "none";
+                    icon.style.transform = "rotate(0deg)";
+                } else {
+                    menu.style.display = "block";  // vertical
+                    icon.style.transform = "rotate(180deg)";
+                }
+            });
+        }
+
+    menu.style.display = "none";
+    icon.style.transform = "rotate(0deg)";
+}); {% endcomment %}

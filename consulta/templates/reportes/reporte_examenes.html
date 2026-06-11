@@ -1,0 +1,165 @@
+{% extends 'Inicio/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 mt-4" style="margin-top: 90px !important;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary mb-0"><i class="fa-solid fa-vials"></i> Exámenes Realizados</h3>
+        <a href="{% url 'reportes_contabilidad' %}" class="btn btn-x btn-pro btn-square btn-square-md"><i class="fa-solid fa-arrow-left"></i> </a>
+    </div>
+
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header text-dark bg-primary">Filtros</div>
+        <div class="card-body">
+            <form method="GET">
+                <input type="hidden" name="ver" value="1">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Mes</label>
+                        <select name="mes" class="form-select">
+                            {% for num, nombre in meses %}
+                            <option value="{{ num }}" {% if filtros.mes == num|stringformat:'s' or not filtros.mes and num == mes_actual %}selected{% endif %}>{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Año</label>
+                        <input type="number" name="anio" class="form-control" value="{{ filtros.anio|default:anio_actual }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Médico (opcional)</label>
+                        <select name="doctor" class="form-select">
+                            <option value="">Todos</option>
+                            {% for d in doctores %}
+                            <option value="{{ d.id }}" {% if filtros.doctor == d.id|stringformat:'s' %}selected{% endif %}>
+                                Dr. {{ d.usuario.nombre }} {{ d.usuario.apellido }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+
+                    <label class="form-label">Tipo de Examen</label>
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="LABORATORIO" {% if filtros.tipo == "LABORATORIO" %}selected{% endif %}>
+                            LABORATORIO
+                        </option>
+                        <option value="IMAGENEOLOGIA" {% if filtros.tipo == "IMAGENEOLOGIA" %}selected{% endif %}>
+                            IMAGENEOLOGIA
+                        </option>
+                        <option value="OTROS" {% if filtros.tipo == "OTROS" %}selected{% endif %}>
+                            OTROS
+                        </option>
+                    </select>
+                </div>
+                </div>
+                <div class="mt-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-pro btn-guardar btn-square btn-square-md"><i class="fa-solid fa-eye"></i> </button>
+                    {% if mostrar_resultados %}
+                    <a href="{% url 'generar_pdf_examenes' %}?{{ request.GET.urlencode }}" target="_blank" class="btn btn-danger btn-pro btn-square btn-square-md btn-delete">
+                        <i class="fa-solid fa-file-pdf"></i> 
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if mostrar_resultados %}
+    <div class="card shadow border-0">
+        <div class="card-header bg-light"><strong>{{ titulo_reporte }}</strong></div>
+        <div class="card-body">
+
+            <div class="row mb-4 text-center">
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <div class="small text-muted">Registros</div>
+                        <div class="fs-4 fw-bold">{{ resumen.cantidad }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <div class="small text-muted">Total exámenes</div>
+                        <div class="fs-5 fw-bold text-primary">$ {{ resumen.total_examenes|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <div class="small text-muted">Total insumos</div>
+                        <div class="fs-5 fw-bold text-success">$ {{ resumen.total_insumos|floatformat:2 }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <div class="small text-muted">Total general</div>
+                        <div class="fs-5 fw-bold text-danger">$ {{ resumen.total_general|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-warning">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Exámenes</th>
+                            <th>Subtotal exámenes</th>
+                            <th>Subtotal insumos</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in filas %}
+                        <tr>
+                            <td>{{ row.examen.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if row.examen.familiar %}
+                                    {{ row.examen.familiar.nombre }} {{ row.examen.familiar.apellido }}
+                                {% else %}
+                                    {{ row.examen.paciente.nombre }} {{ row.examen.paciente.apellido }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.examen.doctor %}
+                                    Dr. {{ row.examen.doctor.usuario.nombre }} {{ row.examen.doctor.usuario.apellido }}
+                                {% else %}—{% endif %}
+                            </td>
+                            {% comment %} <td>
+
+                            
+                                {% for item in row.examen.examenes_realizados.all %}
+                                    <span class="badge bg-primary me-1">{{ item.examen.nom_exa }}</span>
+                                {% empty %}
+                                    {% if row.examen.examen %}{{ row.examen.examen.nom_exa }}{% else %}—{% endif %}
+                                {% endfor %}
+                            </td> {% endcomment %}
+                            <td>
+                                {% for item in row.examen.examenes_realizados.all %}
+                                    <span class="badge bg-primary me-1">
+                                        {{ item.examen.nom_exa }}
+                                    </span>
+                                {% empty %}
+                                    —
+                                {% endfor %}
+                            </td>
+
+
+
+                            <td>$ {{ row.sub_examenes|floatformat:2 }}</td>
+                            <td>$ {{ row.sub_insumos|floatformat:2 }}</td>
+                            <td class="fw-bold">$ {{ row.total|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4">No hay exámenes en el periodo.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

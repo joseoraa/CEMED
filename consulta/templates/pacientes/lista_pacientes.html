@@ -1,0 +1,498 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+
+<div class="container mt-5">
+
+    <h1 class="text-center page-title">
+
+        <i class="bi bi-person-lines-fill"></i> Listado de Pacientes
+    </h1>
+        <div class="divider"></div>
+
+    <!-- BUSCADOR -->
+    <div class="mb-4">
+        <input type="text" id="buscarPaciente" class="form-control form-control-lg"
+               placeholder="🔍 Escriba cédula o nombre del paciente">
+    </div>
+<div id="alertMensajes" class="mt-3"></div>
+
+
+
+<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-medical-blue text-white">
+            <tr>
+                <th>#</th>
+               <th style="cursor:pointer" onclick="ordenarPorCedula()">
+                    Cédula <span id="iconoCedula">⬍</span>
+                </th>
+
+                <th style="cursor:pointer" onclick="ordenarPorNombre()">
+                    Nombre <span id="iconoNombre">⬍</span>
+                </th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Historia Médica</th>
+            </tr>
+        </thead>
+        <tbody id="tablaPacientes">
+            <!-- VACÍA AL INICIO -->
+        </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL HISTORIA MÉDICA -->
+<div class="modal fade" id="historiaModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content shadow">
+      <!-- Modal Header centrado -->
+      <div class="modal-header bg-primary text-white justify-content-center position-relative">
+        <h5 class="modal-title text-center fw-bold"><i class="bi bi-journal-medical"></i> Historia Médica</h5>
+        <button class="btn btn-pro btn-x btn-square btn-square-lg btn-close position-absolute end-0" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i> </button>
+      </div>
+      <div class="modal-body" id="contenidoHistoria">
+        <!-- AJAX -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER HISTORIA MÉDICA -->
+<div class="modal fade" id="verHistoriaModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content shadow">
+      <!-- Modal Header centrado -->
+      <div class="modal-header bg-primary text-white justify-content-center position-relative">
+        <h5 class="modal-title text-center fw-bold">
+          <i class="bi bi-journal-medical"></i> Historia Médica
+        </h5>
+        <button class="btn btn-pro btn-x btn-square btn-square-lg btn-close position-absolute end-0" data-bs-dismiss="modal"><i class="fas fa-x me-2"></i></button>
+      </div>
+      <div class="modal-body" id="verHistoriaContenido">
+        <div class="text-center text-muted">
+            Cargando historia médica...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+
+
+<script>
+
+const input = document.getElementById('buscarPaciente');
+const tabla = document.getElementById('tablaPacientes');
+
+let pacientesData = [];
+let ordenAscCedula = true;
+let ordenAscNombre = true;
+
+/* =====================================
+   CARGAR PACIENTES
+===================================== */
+
+function cargarPacientes(query = '', page = 1) {
+
+    fetch(`/buscar-pacientes/?q=${query}&page=${page}`)
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            pacientesData = data.pacientes;
+
+            renderTabla(
+                data.pacientes,
+                data.number
+            );
+
+            renderPaginacion(data);
+
+        });
+
+}
+
+/* =====================================
+   RENDER TABLA
+===================================== */
+
+function renderTabla(data, pageNum = 1) {
+
+    tabla.innerHTML = '';
+
+    if (data.length === 0) {
+
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No hay pacientes
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    data.forEach((p, index) => {
+
+        const correlativo = ((pageNum - 1) * 5) + (index + 1);
+
+        tabla.innerHTML += `
+
+            <tr>
+
+                <td>${correlativo}</td>
+
+                <td>${p.cedula}</td>
+
+                <td>
+
+                    ${p.nombre}
+
+                    ${p.tipo === 'FAMILIAR'
+                        ? '<span class="badge bg-info ms-2"></span>'
+                        : ''
+                    }
+
+                </td>
+
+                <td>${p.email}</td>
+
+                <td>${p.telefono}</td>
+
+                <td class="text-center">
+
+                    <button
+                        class="btn btn-pro btn-guardar btn-square btn-square-sm me-1"
+                        onclick="abrirHistoria(${p.id}, '${p.tipo}')"
+                    >
+                        <i class="fas fa-save ms-2"></i>
+                    </button>
+
+                    <button
+                        class="btn btn-pro btn-ver btn-square btn-square-sm"
+                        onclick="verHistoria(${p.id}, '${p.tipo}')"
+                    >
+                        <i class="fas fa-eye ms-2"></i>
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+    });
+}
+
+/* =====================================
+   PAGINACIÓN
+===================================== */
+
+function renderPaginacion(data) {
+
+    let paginacionDiv = document.getElementById(
+        'paginacionContenedor'
+    );
+
+    if (!paginacionDiv) {
+
+        const div = document.createElement('div');
+
+        div.id = 'paginacionContenedor';
+
+        div.className = 'd-flex justify-content-center mt-3';
+
+        tabla.closest('.card').appendChild(div);
+
+        paginacionDiv = div;
+    }
+
+    paginacionDiv.innerHTML = `
+
+        <nav>
+
+            <ul class="pagination">
+
+                <li class="page-item ${!data.has_previous ? 'disabled' : ''}">
+
+                    <a
+                        class="page-link"
+                        href="#"
+                        onclick="event.preventDefault(); cargarPacientes(input.value, ${data.number - 1})"
+                    >
+                        Anterior
+                    </a>
+
+                </li>
+
+                <li class="page-item active">
+
+                    <span class="page-link">
+                        Página ${data.number} de ${data.num_pages}
+                    </span>
+
+                </li>
+
+                <li class="page-item ${!data.has_next ? 'disabled' : ''}">
+
+                    <a
+                        class="page-link"
+                        href="#"
+                        onclick="event.preventDefault(); cargarPacientes(input.value, ${data.number + 1})"
+                    >
+                        Siguiente
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+    `;
+}
+
+/* =====================================
+   ORDENAR POR CÉDULA
+===================================== */
+
+function ordenarPorCedula() {
+
+    pacientesData.sort((a, b) => {
+
+        return ordenAscCedula
+
+            ? a.cedula.localeCompare(b.cedula)
+
+            : b.cedula.localeCompare(a.cedula);
+
+    });
+
+    document.getElementById('iconoCedula').textContent =
+        ordenAscCedula ? '⬆️' : '⬇️';
+
+    document.getElementById('iconoNombre').textContent = '⬍';
+
+    ordenAscCedula = !ordenAscCedula;
+
+    renderTabla(pacientesData);
+}
+
+/* =====================================
+   ORDENAR POR NOMBRE
+===================================== */
+
+function ordenarPorNombre() {
+
+    pacientesData.sort((a, b) => {
+
+        return ordenAscNombre
+
+            ? a.nombre.localeCompare(b.nombre)
+
+            : b.nombre.localeCompare(a.nombre);
+
+    });
+
+    document.getElementById('iconoNombre').textContent =
+        ordenAscNombre ? '⬆️' : '⬇️';
+
+    document.getElementById('iconoCedula').textContent = '⬍';
+
+    ordenAscNombre = !ordenAscNombre;
+
+    renderTabla(pacientesData);
+}
+
+/* =====================================
+   ABRIR HISTORIA MÉDICA
+===================================== */
+
+function abrirHistoria(id, tipo) {
+
+    fetch(`/historia-medica/${tipo}/${id}/`)
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            const modalBody = document.getElementById(
+                'contenidoHistoria'
+            );
+
+            modalBody.innerHTML = data.html;
+
+            document.querySelector(
+                '#historiaModal .modal-title'
+            ).innerHTML = `
+
+                <i class="bi bi-journal-medical me-2"></i>
+
+                Historia Médica
+
+                <br>
+
+                <small>
+                    <i class="bi bi-person"></i>
+                    Paciente: ${data.paciente_nombre}
+                </small>
+            `;
+
+            const modal = new bootstrap.Modal(
+                document.getElementById('historiaModal')
+            );
+
+            modal.show();
+
+            const form = modalBody.querySelector('form');
+
+            form.addEventListener('submit', function(e) {
+
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                fetch(`/historia-medica/${tipo}/${id}/`, {
+
+                    method: 'POST',
+
+                    body: formData,
+
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+
+                })
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    if (data.success) {
+
+                        mostrarAlerta(
+                            data.message,
+                            'success'
+                        );
+
+                        modal.hide();
+
+                    } else {
+
+                        mostrarAlerta(
+                            'Error al guardar',
+                            'danger'
+                        );
+
+                    }
+
+                });
+
+            });
+
+        });
+
+}
+
+/* =====================================
+   VER HISTORIA
+===================================== */
+
+function verHistoria(id, tipo) {
+
+    fetch(`/paciente/historia/ver/${tipo}/${id}/`)
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            document.getElementById(
+                'verHistoriaContenido'
+            ).innerHTML = data.html;
+
+            document.querySelector(
+                '#verHistoriaModal .modal-title'
+            ).innerHTML = `
+
+                <i class="bi bi-journal-medical me-2"></i>
+
+                Historia Médica
+
+                <br>
+
+                <small>
+                    <i class="bi bi-person"></i>
+                    Paciente: ${data.paciente_nombre}
+                </small>
+            `;
+
+            new bootstrap.Modal(
+                document.getElementById('verHistoriaModal')
+            ).show();
+
+        });
+
+}
+
+/* =====================================
+   ALERTAS
+===================================== */
+
+function mostrarAlerta(mensaje, tipo) {
+
+    const alertDiv = document.getElementById(
+        'alertMensajes'
+    );
+
+    alertDiv.innerHTML = `
+
+        <div class="alert alert-${tipo} alert-dismissible fade show">
+
+            ${mensaje}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+            ></button>
+
+        </div>
+    `;
+
+    setTimeout(() => {
+
+        alertDiv.innerHTML = '';
+
+    }, 3000);
+}
+
+/* =====================================
+   EVENTOS
+===================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    cargarPacientes();
+
+});
+
+input.addEventListener('keyup', () => {
+
+    cargarPacientes(input.value.trim());
+
+});
+
+</script>
+
+</script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}

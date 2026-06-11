@@ -1,0 +1,361 @@
+{% extends "Inicio/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light min-vh-100">
+
+<div class="card border-0 shadow-lg bg-gradient bg-primary text-white mb-5 overflow-hidden position-relative" style="border-radius: 1rem;">
+    
+    <div class="position-absolute end-0 top-50 translate-middle-y opacity-10 me-5 d-none d-lg-block">
+        <i class="bi bi-hospital" style="font-size: 14rem;"></i>
+    </div>
+    
+    <div class="card-body p-5 position-relative">
+        <div class="row align-items-center g-4">
+            
+            <div class="col-12 col-md">
+                <span class="badge bg-white text-primary text-uppercase px-3 py-2 mb-3 fw-bold tracking-wider shadow-sm" style="font-size: 0.85rem; letter-spacing: 1px;">
+                    <i class="bi bi-activity me-1"></i> {{ request.user.nombre }} {{ request.user.apellido }}
+                </span>
+                
+                <h1 class="fw-black mb-2 display-4 text-tracking-tight">
+                    Bienvenido!
+                </h1>
+                
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+    <!-- INDICADORES PRINCIPALES -->
+    <div class="row g-4 mb-4">
+        <!-- Pacientes -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-hover">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-bold tracking-wider d-block mb-1">Pacientes</span>
+                            <h2 class="fw-black text-dark mb-0 display-6">{{ pacientes_count }}</h2>
+                            
+                        </div>
+                        <div class="p-3 bg-primary-subtle rounded-3 text-primary">
+                            <a href=" {% url 'lista_pacientes'%}"><i class="bi bi-people-fill fs-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Doctores -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-hover">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-bold tracking-wider d-block mb-1">Doctores</span>
+                            <h2 class="fw-black text-dark mb-0 display-6">{{ doctores_count }}</h2>
+                        </div>
+                        <div class="p-3 bg-success-subtle rounded-3 text-success">
+                            <a href=" {% url 'lista_doctores'%}"><i class="bi bi-person-badge-fill text-success fs-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enfermeras -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-hover">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-bold tracking-wider d-block mb-1">Enfermeras</span>
+                            <h2 class="fw-black text-dark mb-0 display-6">{{ enfermeras_count }}</h2>
+                        </div>
+                        <div class="p-3 bg-warning-subtle rounded-3 text-warning">
+                            <i class="bi bi-heart-pulse-fill fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Administradores -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card shadow-sm border-0 h-100 transition-hover">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted text-uppercase fs-7 fw-bold tracking-wider d-block mb-1">Administradores</span>
+                            <h2 class="fw-black text-dark mb-0 display-6">{{ administradores_count }}</h2>
+                        </div>
+                        <div class="p-3 bg-danger-subtle rounded-3 text-danger">
+                            <i class="bi bi-shield-lock-fill fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEGUNDA FILA: ESTADO DE CITAS -->
+    <div class="row g-4 mb-4">
+        <!-- Citas Hoy -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm border-start border-primary border-4 py-2">
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center g-0">
+                        <div class="col me-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 fw-bold fs-7">Citas Hoy</div>
+                            <div class="h3 mb-0 fw-black text-gray-800">{{ citas_hoy }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calendar-check text-gray-300 fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pendientes -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm border-start border-warning border-4 py-2">
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center g-0">
+                        <div class="col me-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 fw-bold fs-7">Pendientes</div>
+                            <div class="h3 mb-0 fw-black text-gray-800">{{ citas_pendientes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-clock-history text-gray-300 fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmadas -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm border-start border-info border-4 py-2">
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center g-0">
+                        <div class="col me-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1 fw-bold fs-7">Confirmadas</div>
+                            <div class="h3 mb-0 fw-black text-gray-800">{{ citas_confirmadas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle text-gray-300 fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Atendidas -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm border-start border-success border-4 py-2">
+                <div class="card-body py-2 px-3">
+                    <div class="row align-items-center g-0">
+                        <div class="col me-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1 fw-bold fs-7">Atendidas</div>
+                            <div class="h3 mb-0 fw-black text-gray-800">{{ citas_atendidas }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-person-check text-gray-300 fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TERCERA FILA: LOGÍSTICA -->
+    <div class="row g-4 mb-4">
+        <!-- Exámenes -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <a href="{% url 'lista_examenes' %}"><i class="bi bi-clipboard2-pulse fs-3 d-flex"></i></a>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 fs-7 text-uppercase fw-bold">Exámenes Realizados</p>
+                        <h3 class="mb-0 fw-black text-dark">{{ examenes_count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insumos -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <a href="{% url 'lista_insumos' %}"><i class="bi bi-capsule-pill fs-3 d-flex text-success"></i></a>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 fs-7 text-uppercase fw-bold">Insumos Registrados</p>
+                        <h3 class="mb-0 fw-black text-dark">{{ insumos_count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Bajo -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm {% if stock_bajo > 0 %}bg-danger bg-opacity-10 text-danger{% else %}bg-white{% endif %} p-3 h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 {% if stock_bajo > 0 %}bg-danger text-white shadow-sm{% else %}bg-secondary bg-opacity-10 text-secondary{% endif %} rounded-circle">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 d-flex"></i>
+                    </div>
+                    <div>
+                        <p class="{% if stock_bajo > 0 %}text-danger-emphasis{% else %}text-muted{% endif %} mb-0 fs-7 text-uppercase fw-bold">Alertas de Stock Bajo</p>
+                        <h3 class="mb-0 fw-black {% if stock_bajo > 0 %}text-danger{% else %}text-dark{% endif %}">{{ stock_bajo }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLAS Y DETALLES -->
+    <div class="row g-4">
+        <!-- Próximas Citas -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i>Próximas Citas
+                    </h5>
+                    <span class="badge bg-light text-dark rounded-pill">{{ proximas_citas|length }} agendadas</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Fecha / Hora</th>
+                                    <th>Paciente</th>
+                                    <th class="pe-4 text-end">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in proximas_citas %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-semibold text-dark">{{ cita.fecha }}</div>
+                                        <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ cita.hora }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light p-2 rounded-circle me-2 d-none d-sm-block">
+                                                <i class="bi bi-person text-secondary"></i>
+                                            </div>
+                                            <span class="fw-medium text-dark">{{ cita }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <!-- Badge inteligente basado en Bootstrap 5 -->
+                                        <span class="badge px-2.5 py-1.5 rounded-pill fs-8
+                                            {% if cita.estado == 'Pendiente' %}bg-warning-subtle text-warning-emphasis
+                                            {% elif cita.estado == 'Confirmada' %}bg-info-subtle text-info-emphasis
+                                            {% else %}bg-primary-subtle text-primary-emphasis{% endif %}">
+                                            {{ cita.estado }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-muted">
+                                        <i class="bi bi-calendar-x fs-2 d-block mb-2"></i> No hay próximas citas programadas.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Exámenes -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="bi bi-file-earmark-medical me-2 text-success"></i>Últimos Exámenes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">Paciente</th>
+                                    <th class="pe-4 text-end">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ex in ultimos_examenes %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-semibold text-dark">{{ ex.paciente.nombre }} {{ ex.paciente.apellido }}</div>
+                                        
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <span class="text-secondary small fw-medium">
+                                            {{ ex.fecha|date:"d/m/Y" }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center py-4 text-muted">
+                                        <i class="bi bi-folder-x fs-2 d-block mb-2"></i> No se registran exámenes recientes.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ESTILOS CSS EXTRA (Añádelos a tu base.html o sección de estilos) -->
+<style>
+    .fw-black { font-weight: 800 !important; }
+    .fs-7 { font-size: 0.8rem !important; }
+    .fs-8 { font-size: 0.75rem !important; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    
+    /* Efecto Hover sutil en tarjetas superiores */
+    .transition-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.08)!important;
+    }
+
+    /* Peso extra para títulos imponentes */
+    .fw-black { 
+        font-weight: 900 !important; 
+    }
+    /* Ajuste de tracking para evitar que las letras grandes se dispersen */
+    .text-tracking-tight {
+        letter-spacing: -1px;
+    }
+    /* Efecto moderno de desenfoque de fondo en el contenedor del icono */
+    .blur-effect {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+</style>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="page-title text-center">USUARIO REGISTRADOS</h1>
+    <div class="divider"></div>  
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaInsumos">
+            <thead class="bg-medical-blue text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Sexo</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <!-- El ID ahora es correlativo según la página -->
+                    <td>{{ forloop.counter0|add:usuarios.start_index }}</td>
+                    <td>{{usuario.tipo_cedula}} {{ usuario.cedula }}</td>
+                    <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>{{ usuario.sexo }}</td>
+                    <td>{{ usuario.get_rol_display }}</td>
+                    <td>
+                        <!-- Botones de acciones se mantienen igual -->
+                        {% if usuario.bloqueado %}
+                            <a href="{% url 'desbloquear_usuario' usuario.id %}" class="btn btn-pro btn-delete btn-square btn-square-sm">
+                                <i class="fas fa-lock"></i>
+                            </a>
+                        {% else %}
+                            <span class="btn btn-pro btn-guardar btn-square btn-square-sm"><i class="fas fa-unlock"></i></span>
+                        {% endif %}
+                        
+                        <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-pro btn-edit btn-square btn-square-sm"><i class="fas fa-pen"></i></a>
+                        
+                        <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-pro btn-delete btn-square btn-square-sm"
+                           onclick="return confirm('¿Seguro que deseas eliminar este usuario?');"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+<nav aria-label="Navegación de usuarios" class="mt-4">
+    <ul class="pagination justify-content-center m-0">
+
+        <li class="page-item {% if not usuarios.has_previous %}disabled{% endif %}">
+            {% if usuarios.has_previous %}
+                <a class="page-link" href="?page={{ usuarios.previous_page_number }}">Anterior</a>
+            {% else %}
+                <span class="page-link">Anterior</span>
+            {% endif %}
+        </li>
+
+        <li class="page-item active">
+            <span class="page-link">Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }}</span>
+        </li>
+
+        <li class="page-item {% if not usuarios.has_next %}disabled{% endif %}">
+            {% if usuarios.has_next %}
+                <a class="page-link" href="?page={{ usuarios.next_page_number }}">Siguiente</a>
+            {% else %}
+                <span class="page-link">Siguiente</span>
+            {% endif %}
+        </li>
+
+    </ul>
+</nav>
+
+    <!-- Botones de navegación principal -->
+    <div class="d-flex justify-content-center mt-3">
+        <a href="{% url 'admin_home' %}" class="btn btn-pro btn-ver btn-square btn-square-lg"><i class="fas fa-home"></i></a>
+        <a href="{% url 'crear_usuario' %}" class="btn btn-pro btn-edit btn-square btn-square-lg ms-2"><i class="fa-solid fa-circle-plus"></i></a>
+    </div>
+</div>
+</br>
+{% endblock %}

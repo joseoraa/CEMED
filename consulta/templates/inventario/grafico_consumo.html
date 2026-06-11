@@ -1,0 +1,476 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- TITULO -->
+    <div class="text-center mb-4">
+
+        <h2 class="fw-bold text-primary">
+            <i class="fa-solid fa-chart-pie"></i>
+            Estadísticas de Consumo de Insumos
+        </h2>
+
+        <p class="text-muted">
+            Visualiza entradas y salidas del inventario médico
+        </p>
+
+    </div>
+
+    <!-- CARD PRINCIPAL -->
+    <div class="card border-0 shadow-lg rounded-4">
+
+        <div class="card-body p-4">
+
+            <form method="GET">
+
+                <div class="row g-3 align-items-end mb-4">
+
+                    <!-- INSUMO -->
+                    <div class="col-md-4">
+
+                        <label class="form-label fw-semibold">
+                            Buscar Insumo
+                        </label>
+
+                        <select name="insumo"
+                                id="selectInsumo"
+                                class="form-select">
+
+                            <option value="">
+                                Todos los Insumos
+                            </option>
+
+                            {% for insumo in insumos %}
+                            <option value="{{ insumo.id }}"
+                                {% if insumo_id == insumo.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+
+                                {{ insumo.nombre_ins }}
+
+                            </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <!-- FECHA INICIO -->
+                    <div class="col-md-3">
+
+                        <label class="form-label fw-semibold">
+                            Desde
+                        </label>
+
+                        <input type="date"
+                            name="fecha_inicio"
+                            value="{{ fecha_inicio }}"
+                            class="form-control">
+
+                    </div>
+
+                    <!-- FECHA FIN -->
+                    <div class="col-md-3">
+
+                        <label class="form-label fw-semibold">
+                            Hasta
+                        </label>
+
+                        <input type="date"
+                            name="fecha_fin"
+                            value="{{ fecha_fin }}"
+                            class="form-control">
+
+                    </div>
+
+                    <!-- BOTON -->
+                    <div class="col-md-2">
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+
+                            <i class="fa-solid fa-filter"></i>
+                            Filtrar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- TITULO INSUMO -->
+            <div class="text-center mb-3">
+
+                <h4 class="fw-bold text-dark">
+                    {{ nombre_insumo }}
+                </h4>
+
+            </div>
+
+            <!-- GRAFICA -->
+            <div class="d-flex justify-content-center align-items-center position-relative">
+
+                <div style="width: 420px; height: 420px;">
+
+                    <canvas id="graficoInsumos"></canvas>
+
+                </div>
+
+                {% if entradas == 0 and salidas == 0 %}
+
+                <div class="position-absolute text-center">
+
+                    <div class="bg-light rounded-4 p-4 shadow-sm">
+
+                        <i class="fa-solid fa-circle-info fa-2x text-secondary mb-3"></i>
+
+                        <h5 class="fw-bold text-secondary">
+                            AÚN NO TIENE MOVIMIENTOS
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Este insumo todavía no registra entradas ni salidas.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+            <!-- RESUMEN -->
+            <div class="row text-center mt-4">
+
+                <!-- ENTRADAS -->
+                <div class="col-md-6 mb-3">
+
+                    <div class="card border-0 bg-primary bg-opacity-10 rounded-4 shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <div class="mb-2">
+
+                                <i class="fa-solid fa-arrow-down fa-2x text-primary"></i>
+
+                            </div>
+
+                            <h5 class="text-primary fw-bold">
+                                Entradas
+                            </h5>
+
+                            <h2 class="fw-bold text-primary">
+                                {{ entradas }}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SALIDAS -->
+                <div class="col-md-6 mb-3">
+
+                    <div class="card border-0 bg-danger bg-opacity-10 rounded-4 shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <div class="mb-2">
+
+                                <i class="fa-solid fa-arrow-up fa-2x text-danger"></i>
+
+                            </div>
+
+                            <h5 class="text-danger fw-bold">
+                                Salidas
+                            </h5>
+
+                            <h2 class="fw-bold text-danger">
+                                {{ salidas }}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- COSTOS -->
+<div class="row text-center mt-2">
+
+    <!-- COSTO ENTRADAS -->
+    <div class="col-md-6 mb-3">
+
+        <div class="card border-0 bg-success bg-opacity-10 rounded-4 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="mb-2">
+                    <i class="fa-solid fa-dollar-sign fa-2x text-success"></i>
+                </div>
+
+                <h5 class="fw-bold text-success">
+                    Costo Total Entradas
+                </h5>
+
+                <h3 class="fw-bold text-success">
+                    $ {{ total_entradas }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- COSTO SALIDAS -->
+    <div class="col-md-6 mb-3">
+
+        <div class="card border-0 bg-warning bg-opacity-10 rounded-4 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="mb-2">
+                    <i class="fa-solid fa-money-bill-wave fa-2x text-warning"></i>
+                </div>
+
+                <h5 class="fw-bold text-warning">
+                    Costo Total Salidas
+                </h5>
+
+                <h3 class="fw-bold text-warning">
+                    $ {{ total_salidas }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- TABLA -->
+<div class="card border-0 shadow-sm rounded-4 mt-4">
+
+    <div class="card-body">
+
+        <h5 class="fw-bold mb-3">
+            <i class="fa-solid fa-list"></i>
+            Movimientos
+        </h5>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Fecha</th>
+                        <th>Insumo</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Total</th>
+                        <th>Descripción</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for mov in movimientos %}
+
+                    <tr>
+
+                        <td>
+                            {{ mov.fecha|date:"d/m/Y H:i" }}
+                        </td>
+
+                        <td>
+                            {{ mov.insumo.nombre_ins }}
+                        </td>
+
+                        <td>
+
+                            {% if mov.tipo == 'ENTRADA' %}
+
+                            <span class="badge bg-primary">
+                                Entrada
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-danger">
+                                Salida
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ mov.cantidad }}
+                        </td>
+
+                        <td>
+                            $ {{ mov.insumo.precio_unitario_ins }}
+                        </td>
+
+                        <td class="fw-bold">
+
+                            $
+                            {{ mov.total_movimiento }}
+
+                        </td>
+
+                        <td>
+                            {{ mov.descripcion }}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="7" class="text-center text-muted py-4">
+
+                            No hay movimientos registrados
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- JQUERY -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- SELECT2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+
+$(document).ready(function() {
+
+    $('#selectInsumo').select2({
+
+        placeholder: "Buscar insumo...",
+        allowClear: true,
+        width: '100%'
+
+    });
+
+    $('#selectInsumo').on('change', function() {
+
+        this.form.submit();
+
+    });
+
+});
+
+
+// GRAFICA
+const ctx = document.getElementById('graficoInsumos');
+
+new Chart(ctx, {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: ['Entradas', 'Salidas'],
+
+        datasets: [{
+
+            data: [
+                {{ entradas }},
+                {{ salidas }}
+            ],
+
+            backgroundColor: [
+
+                '#0d6efd',
+                '#dc3545'
+
+            ],
+
+            borderColor: [
+
+                '#ffffff',
+                '#ffffff'
+
+            ],
+
+            borderWidth: 5,
+            hoverOffset: 15
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        cutout: '70%',
+
+        plugins: {
+
+            legend: {
+
+                position: 'bottom',
+
+                labels: {
+
+                    padding: 25,
+
+                    font: {
+
+                        size: 14
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

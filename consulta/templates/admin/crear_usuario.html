@@ -1,0 +1,76 @@
+{% extends "Inicio/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden; margin-top:90px">
+    <div class="card-header py-3 text-center" style="background: linear-gradient(135deg, #134790 20%, #195CBD 50%, #116BED 90%);">
+        <h5 class="m-0 font-weight-bold text-white uppercase" style="letter-spacing: 1px;">
+            <i class="fa-solid fa-user-gear me-2"></i> GESTIÓN DE USUARIO
+        </h5>
+    </div>
+    <div class="card-body p-4 bg-light" >
+        <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger shadow-sm d-flex align-items-center mb-4" style="border-radius: 12px; border-left: 5px solid #dc3545;">
+                    <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
+                    <div class="small fw-bold">{{ form.non_field_errors }}</div>
+                </div>
+            {% endif %}
+
+            <div class="row">
+                {% for field in form %}
+                    <div class="{% if field.name == 'direccion' or field.name == 'observaciones' %}col-12{% else %}col-md-6{% endif %} mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ field.label }}</label>
+                        
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-primary">
+                                {% if field.name == "cedula" %}
+                                    <i class="fa-solid fa-id-card"></i>
+                                {% elif field.name == "nombre" %}
+                                    <i class="fa-solid fa-user"></i>
+                                {% elif field.name == "apellido" %}
+                                    <i class="fa-solid fa-signature"></i>
+                                {% elif field.name == "email" %}
+                                    <i class="fa-solid fa-envelope"></i>
+                                {% elif "password" in field.name %}
+                                    <i class="fa-solid fa-lock"></i>
+                                {% elif field.name == "rol" %}
+                                    <i class="fa-solid fa-user-tag"></i>
+                                {% elif field.name == "telefono" %}
+                                    <i class="fa-solid fa-phone"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                {% endif %}
+                            </span>
+
+                            {{ field }}
+                        </div>
+
+                        {% if field.errors %}
+                            <div class="text-danger mt-1 fw-bold" style="font-size: 0.75rem;">
+                                {% for error in field.errors %}
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- BOTONES -->
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <button type="submit" class="tn btn-pro btn-guardar btn-square btn-square-lg">
+                    <i class="fas fa-user-plus me-2"></i>
+                </button>
+
+                <a href="{% url 'listar_usuarios' %}" class="tn btn-pro btn-edit btn-square btn-square-lg">
+                    <i class="fa-solid fa-list me-2"></i>        </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+<BR>
+{% endblock %}

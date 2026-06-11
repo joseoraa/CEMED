@@ -1,0 +1,307 @@
+{% extends "Inicio/base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <h1 class="page-title text-center">
+        <i class="fa-solid fa-triangle-exclamation"></i> Emergencias Registradas
+    </h1>
+
+    <div class="divider"></div>
+
+
+
+<form method="GET" class="row g-3 mb-4">
+
+    <div class="col-md-5">
+
+        <input type="text"
+               name="buscar"
+               class="form-control form-control-lg"
+               placeholder="Buscar por paciente o número"
+               value="{{ buscar }}">
+
+    </div>
+
+    <div class="col-md-3">
+
+        <select name="estado"
+                class="form-select form-select-lg">
+
+            <option value="">
+                Todos los estados
+            </option>
+
+            <option value="ACTIVA"
+                {% if estado == 'ACTIVA' %}selected{% endif %}>
+                Activa
+            </option>
+
+            <option value="ALTA"
+                {% if estado == 'ALTA' %}selected{% endif %}>
+                Alta
+            </option>
+
+            <option value="HOSPITALIZADO"
+                {% if estado == 'HOSPITALIZADO' %}selected{% endif %}>
+                Hospitalizado
+            </option>
+
+            <option value="REFERIDO"
+                {% if estado == 'REFERIDO' %}selected{% endif %}>
+                Referido
+            </option>
+            <option value="FALLECIDO"
+                {% if estado == 'FALLECIDO' %}selected{% endif %}>
+                Fallecido
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-2">
+
+        <button type="submit"
+                class="btn btn-primary btn-lg w-100">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Buscar
+
+        </button>
+
+    </div>
+
+    <div class="col-md-2 text-end">
+
+        <a href="{% url 'registrar_emergencia' %}"
+           class="btn btn-edit btn-square btn-square-lg btn-pro">
+
+            <i class="fa-solid fa-plus"></i>
+
+        </a>
+
+    </div>
+
+</form>
+
+
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-0"
+         style="border-radius: 15px; overflow: hidden;">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="bg-medical-blue text-white">
+
+                    <tr>
+                        <th>#</th>
+                        <th>Número</th>
+                        <th>Paciente</th>
+                        <th>Fecha de Ingreso</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for e in emergencias %}
+
+                    <tr>
+
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>{{ e.numero }}</td>
+
+                        <td>
+                            {% if e.paciente %}
+                                {{ e.paciente.nombre }} {{ e.paciente.apellido }}
+                            {% elif e.familiar %}
+                                {{ e.familiar.nombre }} {{ e.familiar.apellido }}
+                            {% else %}
+                                {{ e.nombre_paciente }} {{ e.apellido_paciente }}
+                            {% endif %}
+                        </td>
+
+                        <td>{{ e.fecha_ingreso }}</td>
+
+                        <td>
+                            <span class="badge {% if e.estado == 'ACTIVA' %}bg-danger{% elif e.estado == 'ALTA' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ e.get_estado_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'detalle_emergencia' e.id %}"
+                               class="btn btn-pro btn-square btn-square-lg btn-ver"
+                               title="Expediente">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </a>
+                            <button
+                                class="btn btn-pro btn-square btn-square-lg btn-guardar abrir-triaje-btn"
+                                data-id="{{ e.id }}">
+                                <i class="fa fa-heartbeat"></i>
+                            </button>
+                            <button class="btn btn-pro btn-square btn-square-lg btn-ver ver-triaje-btn"
+                                    data-id="{{ e.id }}">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No hay emergencias registradas
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+<div class="card-footer bg-white border-top-0"> <nav aria-label="Paginación de emergencias">
+ <ul class="pagination justify-content-center m-0"> 
+ <li class="page-item {% if not emergencias.has_previous %}disabled{% endif %}"> {% if emergencias.has_previous %} 
+ <a class="page-link" href="?buscar={{ buscar }}&estado={{ estado }}&page={{ emergencias.previous_page_number }}"> Anterior </a> {% else %} <span class="page-link">Anterior</span> {% endif %} </li> <li class="page-item active"> <span class="page-link"> Página {{ emergencias.number }} de {{ emergencias.paginator.num_pages }} </span> </li> <li class="page-item {% if not emergencias.has_next %}disabled{% endif %}"> {% if emergencias.has_next %} <a class="page-link" href="?buscar={{ buscar }}&estado={{ estado }}&page={{ emergencias.next_page_number }}"> Siguiente </a> {% else %} <span class="page-link">Siguiente</span> {% endif %} </li> </ul> </nav> </div> </div> </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="verTriajeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+    <div class="modal-content">
+
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">
+          <i class="fa-solid fa-file-medical"></i> Triaje del Paciente
+        </h5>
+
+        <button type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="verTriajeBody">
+        <!-- AJAX CONTENT -->
+      </div>
+
+    </div>
+
+  </div>
+</div>
+<div class="modal fade" id="triajeModal" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+
+                <h5 class="modal-title">
+                    Registrar Triaje
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body"
+                 id="triajeModalBody">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+    .bg-medical-blue { background-color: #0d6efd !important; }
+    .page-link { cursor: pointer; }
+</style>
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.abrir-triaje-btn').forEach(btn => {
+
+    btn.addEventListener('click', function () {
+
+        let id = this.dataset.id;
+
+        fetch(`/emergencias/${id}/triaje/`)
+            .then(response => response.text())
+            .then(html => {
+
+                document.getElementById(
+                    'triajeModalBody'
+                ).innerHTML = html;
+
+                let modal = new bootstrap.Modal(
+                    document.getElementById(
+                        'triajeModal'
+                    )
+                );
+
+                modal.show();
+
+            });
+
+    });
+
+});
+
+document.querySelectorAll('.ver-triaje-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+
+        let id = this.dataset.id;
+
+        fetch(`/emergencias/${id}/triaje/ver/`)
+            .then(res => res.text())
+            .then(html => {
+
+                document.getElementById('verTriajeBody').innerHTML = html;
+
+                let modal = new bootstrap.Modal(
+                    document.getElementById('verTriajeModal')
+                );
+
+                modal.show();
+            });
+    });
+});
+</script>
+
+
+
+
+{% endblock %}

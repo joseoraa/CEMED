@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <style type="text/css">
+
+@page {
+
+    size: letter;
+
+    margin-top: 70px;
+    margin-right: 30px;
+    margin-bottom: 100px;
+    margin-left: 30px;
+
+    @frame footer {
+
+        -pdf-frame-content: footerContent;
+
+        left: 150px;
+        width: 535px;
+        top: 960px;
+        height: 20px;
+
+    }
+
+}
+        tr {
+            page-break-inside: avoid;
+        }
+
+        .tabla {
+
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+
+        }
+
+        body {
+
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+
+        }
+
+        .header {
+
+            background-color: #0d6efd;
+            color: white;
+            padding: 15px;
+            text-align: center;
+
+        }
+
+        .titulo {
+
+            font-size: 20px;
+            font-weight: bold;
+
+        }
+
+        .reporte-titulo {
+
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: #0d6efd;
+            font-size: 16px;
+            font-weight: bold;
+
+        }
+
+        .tabla {
+
+            width: 100%;
+            border-collapse: collapse;
+
+        }
+
+        .tabla th {
+            text-align: center;
+            background-color: #0d6efd;
+            color: white;
+            padding: 8px;
+            font-size: 11px;
+            border: 1px solid #dbeafe;
+
+        }
+
+        .tabla td {
+            text-align: center;
+            padding: 4px;
+            font-size: 10px;
+            border: 1px solid #dbeafe;
+
+        }
+
+        .footer-table {
+
+            width: 100%;
+            margin-bottom: 40px;
+            font-size: 9px;
+            color: #64748b;
+            border-top: 1px solid #cbd5e1;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="titulo">
+
+            LISTADO DE PACIENTES DEL CEMED JR ORAA
+
+        </div>
+
+    </div>
+
+    <!-- TITULO -->
+
+    <div class="reporte-titulo">
+
+        {{ titulo_reporte }}
+
+    </div>
+
+    <!-- TABLA -->
+
+    <table class="tabla">
+
+        <thead>
+
+            <tr>
+
+                <th>#</th>
+                <th>Cédula</th>
+                <th>Tipo</th>
+                <th>Paciente</th>
+                
+                <th>Sexo</th>
+                <th>Edad</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for item in pacientes %}
+
+            <tr>
+
+                <td>
+                    {{ forloop.counter }}
+                </td>
+
+                <td>
+                    {% if item.es_familiar %}
+                        {{ item.paciente.paciente_titular.tipo_cedula }}-{{ item.paciente.paciente_titular.cedula }}
+                    {% else %}
+                        {{ item.paciente.tipo_cedula }}-{{ item.paciente.cedula }}
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if item.es_familiar %}
+                        Familiar
+                    {% else %}
+                        Paciente
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ item.paciente.nombre }}
+                    {{ item.paciente.apellido }}
+
+                    {% if item.es_familiar %}
+                        <br>
+                        <small>
+                            Titular:
+                            {{ item.paciente.paciente_titular.nombre }}
+                            {{ item.paciente.paciente_titular.apellido }}
+                        </small>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ item.paciente.sexo }}
+                </td>
+
+                <td>
+                    {{ item.edad }} años
+                </td>
+
+                <td>
+                    {{ item.paciente.telefono }}
+                </td>
+
+                <td>
+                    {{ item.paciente.email }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <!-- FOOTER -->
+
+<div id="footerContent">
+
+    <table class="footer-table">
+
+        <tr>
+
+            <td align="left">
+
+                Reporte generado automáticamente
+
+            </td>
+
+            <td align="center">
+
+                CEMED JR ORAA
+
+            </td>
+
+            <td align="right">
+
+                Página
+                <pdf:pagenumber />
+                de
+                <pdf:pagecount />
+
+            </td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+{% if paciente %}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white fw-bold">
+        <i class="fa-solid fa-user me-2"></i> Información del Paciente
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+
+            <div class="col-md-6 mb-2">
+                <strong>Nombres:</strong> {{ paciente.nombre }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Apellidos:</strong> {{ paciente.apellido }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Cédula:</strong>
+                {{ paciente.tipo_cedula }}-{{ paciente.cedula }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Sexo:</strong> {{ paciente.sexo }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Fecha de Nacimiento:</strong>
+                {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Edad:</strong> {{ edad }} años
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Teléfono:</strong>
+
+                {% if paciente.telefono %}
+                    {{ paciente.telefono }}
+                {% else %}
+                    <span class="text-muted">No registrado</span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+
+{% if familiar %}
+
+<div class="card shadow-sm mb-4 border-info">
+
+    <div class="card-header bg-info text-white fw-bold">
+        <i class="fa-solid fa-children me-2"></i>
+        Información del Familiar
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6 mb-2">
+                <strong>Nombres:</strong>
+                {{ familiar.nombre }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Apellidos:</strong>
+                {{ familiar.apellido }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Sexo:</strong>
+                {{ familiar.sexo }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Fecha de Nacimiento:</strong>
+                {{ familiar.fecha_nacimiento|date:"d/m/Y" }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Edad:</strong>
+                {{ edad }} años
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Parentesco:</strong>
+                {{ familiar.parentesco }}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- RESPONSABLE -->
+
+<div class="card shadow-sm mb-4 border-primary">
+
+    <div class="card-header bg-primary text-white fw-bold">
+        <i class="fa-solid fa-user-shield me-2"></i>
+        Responsable
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6 mb-2">
+                <strong>Nombres:</strong>
+                {{ familiar.paciente_titular.nombre }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Apellidos:</strong>
+                {{ familiar.paciente_titular.apellido }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Cédula:</strong>
+                {{ familiar.paciente_titular.tipo_cedula }}-{{ familiar.paciente_titular.cedula }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Teléfono:</strong>
+
+                {% if familiar.paciente_titular.telefono %}
+                    {{ familiar.paciente_titular.telefono }}
+                {% else %}
+                    <span class="text-muted">
+                        No registrado
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <strong>Email:</strong>
+                {{ familiar.paciente_titular.email }}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endif %}
+
+{% if historia %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white fw-bold">
+        <i class="fa-solid fa-notes-medical me-2"></i> Historia Médica
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+                <strong>Antecedentes:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.antecedentes|default:"No registrado" }}</p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <strong>Alergias:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.alergias|default:"No registrado" }}</p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <strong>Enfermedades Crónicas:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.enfermedades_cronicas|default:"No registrado" }}</p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <strong>Diagnóstico:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.diagnostico|default:"No registrado" }}</p>
+            </div>
+
+            <div class="col-md-6">
+                <strong>Motivo de Consulta:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.motivo_consulta|default:"No registrado" }}</p>
+            </div>
+
+            <div class="col-md-6 ">
+                <strong>Observaciones:</strong>
+                <p class="border rounded p-2 bg-light">{{ historia.observaciones|default:"No registrado" }}</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 LISTA DE EXÁMENES -->
+<div class="card shadow-sm">
+    <div class="card-header bg-info text-white fw-bold">
+        <i class="fa-solid fa-vials me-2"></i> Exámenes Médicos
+    </div>
+
+    <div class="card-body">
+        {% if examenes %}
+            <div class="row">
+                {% for examen in examenes %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border rounded p-3 h-100 bg-light">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="fs-5">{{ examen.nombre_examen }}</strong>
+                                    <span class="text-muted ms-2">
+                                        • {{ examen.fecha_examen|date:"d/m/Y" }}
+                                    </span>
+                                </div>
+                                
+                                <a href="{{ examen.archivo.url }}" target="_blank" 
+                                   class="btn btn-pro btn-square btn-square-sm btn-ver">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </div>
+
+                            {% if examen.descripcion %}
+                                <p class="mt-2 mb-0 text-muted">{{ examen.descripcion }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted text-center py-4">
+                <i class="fa-solid fa-folder-open fa-2x mb-2"></i><br>
+                No hay exámenes registrados
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+{% else %}
+<div class="alert alert-warning text-center">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    Este paciente no tiene historia médica registrada.
+</div>
+{% endif %}
+
+
+
+
+
+
