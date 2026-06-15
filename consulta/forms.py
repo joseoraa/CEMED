@@ -70,7 +70,7 @@ class FamiliarPacienteForm(forms.ModelForm):
         }
 # =======================================================
 
-
+# sexo en la playa
 class RegistroPacienteForm(forms.ModelForm):
     password1 = forms.CharField(
         label="Contraseña",
