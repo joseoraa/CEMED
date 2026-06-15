@@ -39,15 +39,15 @@
                             <label class="form-label fw-bold">Familiar</label>
                             {{ form.familiar }}
                         </div>
-
+                        <br>
                         <div class="mb-2">
                             <label class="form-label fw-bold">Doctor</label>
                             {{ form.doctor }}
                             {% if form.doctor.errors %}
                                 <div class="text-danger small">{{ form.doctor.errors }}</div>
                             {% endif %}
-                        </div>
-                        <div id="leyenda-horarios" class="mt-2 small text-muted"></div>
+                        </div><br><br>
+                        <div id="leyenda-horarios" class="mt-2 small text-muted"></div><br>
                         <div class="row">
                             <div class="col-md-6 mb-2">
                                 <label class="form-label fw-bold">Fecha</label>
@@ -64,7 +64,7 @@
                                     <div class="text-danger small">{{ form.hora.errors }}</div>
                                 {% endif %}
                             </div>
-                        </div>
+                        </div><br>
 
                         <div class="mb-2">
                             <label class="form-label fw-bold">Motivo</label>

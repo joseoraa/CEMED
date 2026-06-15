@@ -123,4 +123,30 @@ urlpatterns = [
     path('familiar/<int:familiar_id>/asignar-titular/', views.asignar_titular_familiar, name='asignar_titular_familiar'),
     path('familiares/asignar/', views.asignar_familiar_paciente, name='asignar_familiar_paciente'),
 
+    path(
+        'reportes/pacientes-medico/',
+        views.reporte_pacientes_medico,
+        name='reporte_pacientes_medico'
+    ),
+
+    path(
+        'reportes/pacientes-medico/pdf/',
+        views.generar_pdf_pacientes_medico,
+        name='pdf_pacientes_medico'
+    ),
+
+
+
+    path(
+        'reportes/pacientes-especialidad/',
+        views.reporte_pacientes_especialidad,
+        name='reporte_pacientes_especialidad'
+    ),
+
+    path(
+        'reportes/pacientes-especialidad/pdf/',
+        views.generar_pdf_pacientes_especialidad,
+        name='pdf_pacientes_especialidad'
+    ),
+
 ]

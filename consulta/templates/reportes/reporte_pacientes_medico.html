@@ -1,0 +1,121 @@
+{% extends 'Inicio/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid mt-4" style="margin-top:90px!important;">
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4>{{ titulo_reporte }}</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="get" class="row g-3 mb-4">
+
+                <input type="hidden" name="ver" value="1">
+
+                <div class="col-md-4">
+                    <label>Mes</label>
+                    <select name="mes" class="form-select">
+                        {% for num,nombre in meses %}
+                            <option value="{{ num }}">
+                                {{ nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label>Año</label>
+                    <input type="number"
+                           name="anio"
+                           value="{{ anio_actual }}"
+                           class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label>Médico</label>
+                    <select name="doctor" class="form-select">
+                        <option value="">-- Todos los médicos --</option>
+                        {% for d in doctores %}
+                            <option value="{{ d.id }}"
+                                {% if doctor_id == d.id|stringformat:"s" %}selected{% endif %}>
+                                Dr. {{ d.usuario.nombre }} {{ d.usuario.apellido }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100">
+                        Generar
+                    </button>
+                </div>
+                <a href="{% url 'pdf_pacientes_medico' %}?{{ request.GET.urlencode }}"
+                class="btn btn-danger" target="_blank" >
+                    PDF
+                </a>
+            </form>
+
+            {% for item in reporte %}
+
+            <div class="card mb-4 border-primary">
+
+                <div class="card-header">
+
+                    <strong>
+                        Dr. {{ item.doctor.usuario.nombre }}
+                        {{ item.doctor.usuario.apellido }}
+                    </strong>
+
+                    |
+                    {{ item.doctor.especialidad }}
+
+                </div>
+
+                <div class="card-body">
+
+                    {% comment %} <p>
+                        <strong>Total citas:</strong>
+                        {{ item.total_citas }}
+                    </p> {% endcomment %}
+
+                    <p>
+                        <strong>Total pacientes:</strong>
+                        {{ item.total_pacientes }}
+                    </p>
+
+                    <table class="table table-sm table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Cédula</th>
+                                <th>Paciente</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for p in item.pacientes %}
+                            <tr>
+                                <td>{{ p.cedula }}</td>
+                                <td>{{ p.nombre }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

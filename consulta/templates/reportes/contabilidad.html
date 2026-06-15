@@ -13,6 +13,38 @@
         <div class="col-md-4">
             <div class="card shadow border-0 h-100">
                 <div class="card-body text-center">
+                    <i class="fa-solid fa-user-doctor fa-3x text-primary mb-3"></i>
+                    <h5>Pacientes por Médico</h5>
+                    <p class="text-muted small">
+                        Muestra los pacientes atendidos por cada médico durante el mes seleccionado.
+                    </p>
+                    <a href="{% url 'reporte_pacientes_medico' %}"
+                    class="btn btn-primary">
+                        Abrir reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-stethoscope fa-3x text-primary mb-3"></i>
+                    <h5>Pacientes por Especialidad</h5>
+                    <p class="text-muted small">
+                        Muestra los pacientes atendidos por cada especialidad durante el mes seleccionado.
+                    </p>
+                    <a href="{% url 'reporte_pacientes_especialidad' %}"
+                    class="btn btn-primary">
+                        Abrir reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow border-0 h-100">
+                <div class="card-body text-center">
                     <i class="fa-solid fa-calendar-check fa-3x text-primary mb-3"></i>
                     <h5>Citas Médicas Atendidas</h5>
                     <p class="text-muted small">Por doctor, especialidad, fecha o mes. Incluye totales en Bs y USD.</p>

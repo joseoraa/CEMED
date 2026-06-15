@@ -103,6 +103,22 @@ class RegistroPacienteForm(forms.ModelForm):
             raise forms.ValidationError("Las contraseñas no coinciden")
         return password2
 
+
+    def clean_fecha_nacimiento(self):
+        fecha = self.cleaned_data.get('fecha_nacimiento')
+        hoy = timezone.localdate()
+
+        edad = hoy.year - fecha.year - (
+            (hoy.month, hoy.day) < (fecha.month, fecha.day)
+        )
+
+        if edad < 18:
+            raise forms.ValidationError(
+                "Debe ser mayor de edad (18 años o más) para registrarse."
+            )
+
+        return fecha
+
     def save(self, commit=True):
         usuario = super().save(commit=False)
         usuario.rol = Usuario.PACIENTE

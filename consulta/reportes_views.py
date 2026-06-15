@@ -478,3 +478,335 @@ def generar_pdf_examenes(request):
         },
         'reporte_examenes.pdf',
     )
+
+
+
+
+
+
+
+
+
+@rol_requerido(['ADMIN'])
+def reporte_pacientes_medico(request):
+
+    ctx = _contexto_filtros()
+
+    mostrar = request.GET.get('ver') == '1'
+
+    if mostrar:
+
+        mes, anio = _mes_anio_desde_request(request)
+        doctor_id = request.GET.get('doctor')
+
+        citas = CitaMedica.objects.filter(
+            estado=CitaMedica.ATENDIDA,
+            fecha__month=mes,
+            fecha__year=anio
+        ).select_related(
+            'paciente',
+            'familiar',
+            'doctor__usuario',
+            'doctor__especialidad'
+        )
+
+        # 🔥 FILTRO POR MÉDICO
+        if doctor_id:
+            citas = citas.filter(doctor_id=doctor_id)
+
+        doctores = {}
+
+        for cita in citas:
+
+            doctor = cita.doctor
+
+            if doctor.id not in doctores:
+                doctores[doctor.id] = {
+                    'doctor': doctor,
+                    'citas': 0,
+                    'pacientes': {}
+                }
+
+            doctores[doctor.id]['citas'] += 1
+
+            # paciente normal
+            if cita.paciente:
+                key = f"P-{cita.paciente.id}"
+                doctores[doctor.id]['pacientes'][key] = {
+                    'nombre': f"{cita.paciente.nombre} {cita.paciente.apellido}",
+                    'cedula': f"{cita.paciente.tipo_cedula}-{cita.paciente.cedula}"
+                }
+
+            # familiar
+            elif cita.familiar:
+                key = f"F-{cita.familiar.id}"
+                doctores[doctor.id]['pacientes'][key] = {
+                    'nombre': f"{cita.familiar.nombre} {cita.familiar.apellido}",
+                    'cedula': cita.familiar.parentesco or 'FAMILIAR'
+                }
+
+        reporte = []
+
+        for d in doctores.values():
+            reporte.append({
+                'doctor': d['doctor'],
+                'total_citas': d['citas'],
+                'total_pacientes': len(d['pacientes']),
+                'pacientes': list(d['pacientes'].values())
+            })
+
+        ctx.update({
+            'mostrar_resultados': True,
+            'reporte': reporte,
+            'doctor_id': doctor_id,
+            'titulo_reporte': f"PACIENTES POR MÉDICO - {_nombre_mes(mes).upper()} {anio}"
+        })
+
+    return render(request, 'reportes/reporte_pacientes_medico.html', ctx)
+
+
+@rol_requerido(['ADMIN'])
+def generar_pdf_pacientes_medico(request):
+
+    mes, anio = _mes_anio_desde_request(request)
+    doctor_id = request.GET.get('doctor')
+
+    citas = CitaMedica.objects.filter(
+        fecha__month=mes,
+        fecha__year=anio
+    ).select_related(
+        'paciente',
+        'familiar',
+        'doctor__usuario',
+        'doctor__especialidad'
+    )
+
+    if doctor_id:
+        citas = citas.filter(doctor_id=doctor_id)
+
+    doctores = {}
+
+    for cita in citas:
+
+        doctor = cita.doctor
+
+        if doctor.id not in doctores:
+            doctores[doctor.id] = {
+                'doctor': doctor,
+                'citas': 0,
+                'pacientes': {}
+            }
+
+        doctores[doctor.id]['citas'] += 1
+
+        if cita.paciente:
+            doctores[doctor.id]['pacientes'][f"P-{cita.paciente.id}"] = {
+                'nombre': f"{cita.paciente.nombre} {cita.paciente.apellido}",
+                'cedula': f"{cita.paciente.tipo_cedula}-{cita.paciente.cedula}"
+            }
+
+        elif cita.familiar:
+            doctores[doctor.id]['pacientes'][f"F-{cita.familiar.id}"] = {
+                'nombre': f"{cita.familiar.nombre} {cita.familiar.apellido}",
+                'cedula': cita.familiar.parentesco or 'FAMILIAR'
+            }
+
+    reporte = []
+
+    for d in doctores.values():
+        reporte.append({
+            'doctor': d['doctor'],
+            'total_citas': d['citas'],
+            'total_pacientes': len(d['pacientes']),
+            'pacientes': list(d['pacientes'].values())
+        })
+
+    return _render_pdf(
+        'reportes/pdf_pacientes_medico.html',
+        {
+            'reporte': reporte,
+            'mes': mes,
+            'anio': anio,
+            'titulo': 'PACIENTES POR MÉDICO'
+        },
+        'pacientes_por_medico.pdf'
+    )
+
+@login_required
+@rol_requerido(['ADMIN'])
+def reporte_pacientes_especialidad(request):
+
+    ctx = _contexto_filtros()
+    mostrar = request.GET.get('ver') == '1'
+
+    if mostrar:
+
+        mes, anio = _mes_anio_desde_request(request)
+        esp_id = request.GET.get('especialidad')
+
+        citas = CitaMedica.objects.filter(
+            estado=CitaMedica.ATENDIDA,
+            fecha__month=mes,
+            fecha__year=anio
+        ).select_related(
+            'paciente',
+            'familiar',
+            'doctor__especialidad'
+        )
+
+        if esp_id:
+            citas = citas.filter(doctor__especialidad_id=esp_id)
+
+        especialidades = {}
+
+        for cita in citas:
+
+            nombre_esp = (
+                cita.doctor.especialidad.nombre_espe
+                if cita.doctor.especialidad
+                else 'SIN ESPECIALIDAD'
+            )
+
+            if nombre_esp not in especialidades:
+                especialidades[nombre_esp] = {
+                    'citas': 0,
+                    'pacientes': {}
+                }
+
+            especialidades[nombre_esp]['citas'] += 1
+
+            if cita.paciente:
+                key = f"P-{cita.paciente.id}"
+                especialidades[nombre_esp]['pacientes'][key] = {
+                    'nombre': f"{cita.paciente.nombre} {cita.paciente.apellido}",
+                    'cedula': f"{cita.paciente.tipo_cedula}-{cita.paciente.cedula}"
+                }
+
+            elif cita.familiar:
+                key = f"F-{cita.familiar.id}"
+                especialidades[nombre_esp]['pacientes'][key] = {
+                    'nombre': f"{cita.familiar.nombre} {cita.familiar.apellido}",
+                    'cedula': cita.familiar.parentesco or 'FAMILIAR'
+                }
+
+        reporte = []
+
+        for nombre, datos in especialidades.items():
+            reporte.append({
+                'especialidad': nombre,
+                'total_citas': datos['citas'],
+                'total_pacientes': len(datos['pacientes']),
+                'pacientes': list(datos['pacientes'].values())
+            })
+
+        reporte.sort(key=lambda x: x['total_citas'], reverse=True)
+
+        ctx.update({
+            'mostrar_resultados': True,
+            'titulo_reporte': f"PACIENTES POR ESPECIALIDAD - {_nombre_mes(mes).upper()} {anio}",
+            'reporte': reporte,
+            'esp_id': esp_id
+        })
+
+    return render(request, 'reportes/reporte_pacientes_especialidad.html', ctx)
+
+@login_required
+@rol_requerido(['ADMIN'])
+def generar_pdf_pacientes_especialidad(request):
+
+    mes, anio = _mes_anio_desde_request(request)
+    esp_id = request.GET.get('especialidad')
+
+    citas = CitaMedica.objects.filter(
+        estado=CitaMedica.ATENDIDA,
+        fecha__month=mes,
+        fecha__year=anio
+    ).select_related(
+        'paciente',
+        'familiar',
+        'doctor__especialidad'
+    )
+    print("ESP_ID:", esp_id)
+    print("TOTAL CITAS INICIALES:", citas.count())
+    # 🔥 LIMPIEZA DE FILTRO
+    if esp_id in ["", "None", None]:
+        esp_id = None
+
+    # 🔥 SI VIENE ESPECIALIDAD → FILTRO FUERTE
+    if esp_id:
+        citas = citas.filter(doctor__especialidad_id=esp_id)
+
+        esp_obj = Especialidad.objects.filter(id=esp_id).first()
+
+        pacientes = {}
+
+        for cita in citas:
+            if cita.paciente:
+                pacientes[f"P-{cita.paciente.id}"] = {
+                    'nombre': f"{cita.paciente.nombre} {cita.paciente.apellido}",
+                    'cedula': f"{cita.paciente.tipo_cedula}-{cita.paciente.cedula}"
+                }
+
+            elif cita.familiar:
+                pacientes[f"F-{cita.familiar.id}"] = {
+                    'nombre': f"{cita.familiar.nombre} {cita.familiar.apellido}",
+                    'cedula': cita.familiar.parentesco or 'FAMILIAR'
+                }
+
+        reporte = [{
+            'especialidad': esp_obj.nombre_espe if esp_obj else "SIN ESPECIALIDAD",
+            'total_citas': citas.count(),
+            'total_pacientes': len(pacientes),
+            'pacientes': list(pacientes.values())
+        }]
+
+    else:
+        # 🔥 TODAS LAS ESPECIALIDADES
+        especialidades = {}
+
+        for cita in citas:
+
+            esp = cita.doctor.especialidad.nombre_espe if cita.doctor.especialidad else 'SIN ESPECIALIDAD'
+
+            if esp not in especialidades:
+                especialidades[esp] = {
+                    'citas': 0,
+                    'pacientes': {}
+                }
+
+            especialidades[esp]['citas'] += 1
+
+            if cita.paciente:
+                especialidades[esp]['pacientes'][f"P-{cita.paciente.id}"] = {
+                    'nombre': f"{cita.paciente.nombre} {cita.paciente.apellido}",
+                    'cedula': f"{cita.paciente.tipo_cedula}-{cita.paciente.cedula}"
+                }
+
+            elif cita.familiar:
+                especialidades[esp]['pacientes'][f"F-{cita.familiar.id}"] = {
+                    'nombre': f"{cita.familiar.nombre} {cita.familiar.apellido}",
+                    'cedula': cita.familiar.parentesco or 'FAMILIAR'
+                }
+
+        reporte = []
+
+        for nombre, datos in especialidades.items():
+            reporte.append({
+                'especialidad': nombre,
+                'total_citas': datos['citas'],
+                'total_pacientes': len(datos['pacientes']),
+                'pacientes': list(datos['pacientes'].values())
+            })
+
+        reporte.sort(key=lambda x: x['total_citas'], reverse=True)
+
+    return _render_pdf(
+        'reportes/pdf_pacientes_especialidad.html',
+        {
+            'reporte': reporte,
+            'mes': mes,
+            'anio': anio,
+            'titulo': 'PACIENTES POR ESPECIALIDAD'
+        },
+        'pacientes_por_especialidad.pdf'
+    )

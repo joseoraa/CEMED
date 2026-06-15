@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+@page {
+    size: letter;
+    margin: 35px 25px 80px 25px;
+}
+
+body {
+    font-family: Arial;
+    font-size: 10px;
+    color: #1e293b;
+}
+
+.header {
+    background: #0d6efd;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.subtitle {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 12px;
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.kpi {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+.kpi td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: center;
+    width: 50%;
+}
+
+table.data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.data th {
+    background: #0d6efd;
+    color: white;
+    font-size: 9px;
+    padding: 6px;
+}
+
+table.data td {
+    border: 1px solid #ddd;
+    font-size: 9px;
+    padding: 4px;
+    text-align: center;
+}
+
+.box {
+    margin-bottom: 20px;
+    border: 1px solid #0d6efd;
+    padding: 10px;
+}
+
+.title-box {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    CEMED JR ORAA — PACIENTES POR ESPECIALIDAD
+</div>
+
+<div class="subtitle">
+    {{ mes }}/{{ anio }}
+</div>
+
+{% for item in reporte %}
+
+<div class="box">
+
+    <div class="title-box">
+        {{ item.especialidad }}
+    </div>
+
+    <table class="kpi">
+        <tr>
+            <td><strong>Total citas</strong><br>{{ item.total_citas }}</td>
+            <td><strong>Total pacientes</strong><br>{{ item.total_pacientes }}</td>
+        </tr>
+    </table>
+
+    <table class="data">
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Cédula / Parentesco</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for p in item.pacientes %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.cedula }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endfor %}
+
+</body>
+</html>
